@@ -17,8 +17,14 @@ struct wifiData
   char subNetMask[16];
   char localIP[16];
   char dhcp[15];
+  unsigned long timestamp;
 }
 
 extern QueueHandle_t wifiQueue;
+
+struct bleData
+{
+
+}
 
 #endif // !CONFIG_H
