@@ -52,4 +52,5 @@ void runFSM()
             break;
     }
     btnALastState = btnACurrentState;
+    btnBLastState = btnBCurrentState;
 }
