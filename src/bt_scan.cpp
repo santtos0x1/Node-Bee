@@ -1,4 +1,7 @@
+// Local libs
 #include "config.h"
+
+// Libs
 #include <Arduino.h>
 #include <BLEDevice.h>
 #include <BLEScan.h>

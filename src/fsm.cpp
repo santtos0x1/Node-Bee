@@ -1,7 +1,10 @@
+// Local libs
 #include "fsm.h"
 #include "bt_scan.h"
 #include "wifi_scan.h"
 #include "data_logger.h"
+
+// Libs
 #include <Arduino.h>
 
 #define BTN_A_PINOUT 14
@@ -11,19 +14,21 @@
 bool btnALastState = HIGH;
 bool btnBLastState = HIGH;
 
-String scanMode = "";
+String scanMode;
 
 void setupFSM()
 {
+    // Initing modules
     setupWiFi();
     setupBT();
     setupSD();
 
+    // Setting PINs
     pinMode(BTN_A_PINOUT, INPUT_PULLUP);
     pinMode(BTN_B_PINOUT, INPUT_PULLUP);
-
     pinMode(BUILT_IN_LED, OUTPUT);
 
+    // Start state
     currentState = IDLE;
 }
 
@@ -36,6 +41,7 @@ void runFSM()
     {
         case IDLE:
             Serial.println("Current FSM state: IDLE")
+
             if(btnAPressed)
             {       
                 scanMode = "WF";
@@ -46,10 +52,12 @@ void runFSM()
                 scanMode = "BT";
                 currentState = SCAN;
             }
+
             break;
 
         case SCAN:
             Serial.println("Current FSM state: SCAN");
+
             if(scanMode == "WF")
             {
                 digitalWrite(BUILT_IN_LED, HIGH);
@@ -60,18 +68,20 @@ void runFSM()
                 digitalWrite(BUILT_IN_LED, HIGH);
                 BTSniffer();
             }
-            delay(500);
+
             for(int i = 0; i < 5; i++)
             {
                 digitalWrite(BUILT_IN_LED, HIGH);
                 delay(300);
                 digitalWrite(BUILT_IN_LED, LOW);            
             }
+
             currentState = PROCESS;
             break;
         
         case PROCESS:
             Serial.println("Current FSM state: PROCESS");
+
             if(scanMode == "WF") {
                 logWiFiData();
             }
@@ -79,9 +89,11 @@ void runFSM()
             {
                 logBTData();
             }
+
             currentState = IDLE;
             break;
     }
+
     btnALastState = digitalRead(BTN_A_PINOUT);
     btnBLastState = digitalRead(BTN_B_PINOUT);
 }

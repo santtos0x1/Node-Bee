@@ -1,5 +1,8 @@
+// Local libs
 #include "data_logger.h"
 #include "config.h"
+
+// Libs
 #include <Arduino.h>
 #include <Arduino_UUID.h>
 #include <SD.h>
@@ -36,7 +39,9 @@ void logWiFiData()
     if (xQueueReceive(WiFiQueue, &receivedWiFiData, pdMS_TO_TICKS(100)))
     {
         Serial.printf("Creating file: '%s'", WiFiFileName)
+
         File dataFile = SD.open(WiFiFileName);
+
         if (dataFile)
         {
             dataFile.printf("%s,%d,%s,%d,%s,%s,%d,%s,%s,%s\n",
@@ -65,7 +70,9 @@ void logBTData()
     if (xQueueReceive(BTQueue, &receivedBTData, pdMS_TO_TICKS(100)))
     {
         File dataFile = SD.open(BTFileName);
+
         Serial.printf("Creating file: '%s'.", BTFileName);
+        
         if (dataFile)
         {
             dataFile.printf("%s,%s,%d,%s,%d\n",

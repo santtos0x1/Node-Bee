@@ -1,5 +1,8 @@
+// Local libs
 #include "wifi_scan.h"
 #include "config.h"
+
+// Libs
 #include <WiFi.h>
 #include <esp_wifi.h>
 #include <Arduino.h>
@@ -25,10 +28,12 @@ void WiFiSniffer()
     for (int i = 0; i < numNetworksFound; i++)
     {
         WiFiData data;
+
         // Clean the data from "BTData" struct
         memset(&data, 0, sizeof(WiFiData));
 
         Serial.printf("Collecting data from network %d...\n", i);
+
         // Gets the data w/o connecting to the network
         strncpy(data.ssid, WiFi.SSID(i).c_str(), 32);
         data.rssi = WiFi.RSSI(i);
@@ -60,6 +65,7 @@ void WiFiSniffer()
             if (WiFi.status() == WL_CONNECTED)
             {
                 Serial.printf("\nSuccessfully connected on %s\n", data.ssid);
+
                 // Gets the data of the network
                 strncpy(data.hostname, WiFi.getHostname(), 32);
                 strncpy(data.localIP, WiFi.localIP().toString().c_str(), 15);
@@ -82,9 +88,11 @@ void WiFiSniffer()
                 Serial.printf("Data successfully collected. Disconnected from %s\n", data.ssid);
             }
         }
+
         // Send to the queue
         xQueueSend(WiFiQueue, &data, pdMS_TO_TICKS(10));
     }
+    
     // Cleans the scan data in memory
     WiFi.scanDelete();
 }
