@@ -88,7 +88,7 @@ Inspirado na coruja, o Noctua observa silenciosamente, registra informações e 
 3. **Process**  
    - Organização e filtragem dos dados coletados  
 
-![Cycle](Operational cycle.png)
+![Cycle](operational_cycle.png)
 
 > A FSM é simples de propósito. Clareza > complexidade desnecessária.
 
