@@ -28,7 +28,7 @@ void runFSM()
     switch(currentState)
     {
         case IDLE:
-            if(btnACurrentState && !btnALastState)
+            if((btnACurrentState && !btnALastState) or (btnBCurrentState && !btnBLastState))
             {
                 currentState = SCAN;
             }
