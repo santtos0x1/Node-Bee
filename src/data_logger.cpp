@@ -12,7 +12,7 @@ UUID sessionUUID;
 WiFiData receivedWiFiData;
 BTData receivedBTData;
 
-bool initSD()
+bool setupSD()
 {
     sessionUUID = UUID::generate();
     Serial.println("Starting the SD Card");
@@ -48,6 +48,7 @@ void logWiFiData()
                             receivedWiFiData.dnsIP,
                             receivedWiFiData.subNetMask);
             dataFile.close();
+            Serial.printf("Sucessfully saved on %s\n", logWiFiData);
         }
         else
         {
@@ -70,6 +71,7 @@ void logBTData()
                             receivedBTData.addressType,
                             receivedBTData.channel);
             dataFile.close();
+            Serial.printf("Sucessfully saved on %s\n", logBTData);
         }
         else
         {

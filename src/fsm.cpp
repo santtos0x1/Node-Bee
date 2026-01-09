@@ -1,6 +1,7 @@
 #include "fsm.h"
 #include "bt_scan.h"
 #include "wifi_scan.h"
+#include "data_logger.h"
 #include <Arduino.h>
 
 #define BTN_A_PINOUT 14
@@ -9,10 +10,13 @@
 bool btnALastState = HIGH;
 bool btnBLastState = HIGH;
 
+String scanMode = "";
+
 void setupFSM()
 {
     setupWiFi();
     setupBT();
+    setupSD();
 
     pinMode(BTN_A_PINOUT, INPUT_PULLUP);
     pinMode(BTN_B_PINOUT, INPUT_PULLUP);
@@ -22,24 +26,30 @@ void setupFSM()
 
 void runFSM()
 {
-    bool btnACurrentState = (digitalRead(BTN_A_PINOUT) == LOW);
-    bool btnBCurrentState = (digitalRead(BTN_B_PINOUT) == LOW);
+    bool btnAPressed = (digitalRead(BTN_A_PINOUT) == LOW && btnALastState == HIGH);
+    bool btnBPressed = (digitalRead(BTN_B_PINOUT) == LOW && btnBLastState == HIGH);
 
     switch(currentState)
     {
         case IDLE:
-            if((btnACurrentState && !btnALastState) or (btnBCurrentState && !btnBLastState))
+            if(btnAPressed)
             {
+                scanMode = "WF";
+                currentState = SCAN;
+            }
+            else if(btnBPressed)
+            {
+                scanMode = "BT";
                 currentState = SCAN;
             }
             break;
 
         case SCAN:
-            if(btnACurrentState && !btnALastState)
+            if(scanMode == "WF")
             {
                 WiFiSniffer();
             }
-            else if(btnBCurrentState && !btnBLastState)
+            else if(scanMode == "BT")
             {
                 BTSniffer();
             }
@@ -47,10 +57,16 @@ void runFSM()
             break;
         
         case PROCESS:
-            // Put the SD log logic here
+            if(scanMode == "WF") {
+                logWiFiData();
+            }
+            else
+            {
+                logBTData();
+            }
             currentState = IDLE;
             break;
     }
-    btnALastState = btnACurrentState;
-    btnBLastState = btnBCurrentState;
+    btnALastState = digitalRead(BTN_A_PINOUT);
+    btnBLastState = digitalRead(BTN_B_PINOUT);
 }
