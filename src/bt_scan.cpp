@@ -9,11 +9,12 @@
 QueueHandle_t BTQueue;
 BLEScan *pBLEscan;
 
+BTData data;
+
 class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks
 {
     void onResult(BLEAdvertisedDevice advertisedDevice)
     {
-        BTData data;
         // Clean the data from "BTData" struct
         memset(&data, 0, sizeof(BTData));
         
@@ -49,6 +50,7 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks
         }
         data.timestamp = millis();
         data.channel = 0;
+
         // Send to the queue
         xQueueSend(BTQueue, &data, pdMS_TO_TICKS(10));
     }

@@ -3,7 +3,8 @@
 
 #include <Arduino.h>
 
-bool initSD();
+bool setupSD();
 void logWiFiData();
+void logBTData();
 
 #endif // !DATA_LOGGER_H

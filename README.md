@@ -24,6 +24,7 @@ Inspirado na coruja, o Noctua observa silenciosamente, registra informações e 
 ## O que o Noctua Coleta
 
 ### Wi-Fi
+
 - SSID  
 - BSSID (MAC do Access Point)  
 - Canal Wi-Fi  
@@ -37,6 +38,7 @@ Inspirado na coruja, o Noctua observa silenciosamente, registra informações e 
 ---
 
 ### Bluetooth (BLE)
+
 - MAC Address  
 - Nome do dispositivo (quando disponível)  
 - RSSI  
@@ -47,6 +49,7 @@ Inspirado na coruja, o Noctua observa silenciosamente, registra informações e 
 ---
 
 ### Dados de Log
+
 - ID do arquivo de log  
 - Data de criação  
 
@@ -84,9 +87,6 @@ Inspirado na coruja, o Noctua observa silenciosamente, registra informações e 
 
 3. **Process**  
    - Organização e filtragem dos dados coletados  
-
-4. **Done**  
-   - Finalização do ciclo e retorno ao Idle  
 
 > A FSM é simples de propósito. Clareza > complexidade desnecessária.
 

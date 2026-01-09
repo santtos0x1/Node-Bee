@@ -11,7 +11,7 @@ struct WiFiData
   char bssid[20];
   uint8_t encryptationType;
   int channel;
-  //WiFi connected
+  // Connected
   char hostname[33];
   char dnsIP[16];
   char subNetMask[16];
@@ -26,8 +26,8 @@ struct BTData
     char address[18];
     int rssi;        
     char addressType[20];
-    unsigned long timestamp;
     int channel;
+    unsigned long timestamp;
 }
 
 extern QueueHandle_t WiFiQueue;

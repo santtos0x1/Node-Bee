@@ -3,7 +3,8 @@
 #include <Arduino.h>
 #include <SD.h>
 
-wifiData receivedData;
+WiFiData receivedWiFiData;
+BTData receivedBTData;
 
 bool initSD()
 {
@@ -12,8 +13,13 @@ bool initSD()
 
 void logWiFiData()
 {
-    if (xQueueReceive(wifiQueue, &receivedData, portMAX_DELAY))
+    if (xQueueReceive(wifiQueue, &receivedWiFiData, portMAX_DELAY))
     {
         // log information in SD here
     }
+}
+
+void logBTData()
+{
+
 }

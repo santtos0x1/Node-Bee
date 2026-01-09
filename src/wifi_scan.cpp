@@ -27,6 +27,7 @@ void WiFiSniffer()
         // Clean the data from "BTData" struct
         memset(&data, 0, sizeof(WiFiData));
 
+        Serial.printf("Collecting data from network %d...\n", i);
         // Gets the data w/o connecting to the network
         strncpy(data.ssid, WiFi.SSID(i).c_str(), 32);
         data.rssi = WiFi.RSSI(i);
@@ -42,11 +43,11 @@ void WiFiSniffer()
 
             // Starts the connection
             WiFi.begin(data.ssid);
-            Serial.print("Connecting");
+            Serial.print("Trying to connect");
 
             while (WiFi.status() != WL_CONNECTED)
             {
-                if (millis() - initTimer >= CONN_TIMEOUT_MS)
+                if (millis() - initTimer > CONN_TIMEOUT_MS)
                 {
                     Serial.println("\nConnection timeout...");
                     break;
@@ -69,15 +70,15 @@ void WiFiSniffer()
                 tcpip_adapter_dhcpc_get_status(TCPIP_ADAPTER_IF_STA, &status);
                 if (status == TCPIP_ADAPTER_DHCP_STARTED)
                 {
-                    strcpy(data.dhcp, "Active");
+                    strcpy(data.dhcp, "DHCP status: Active");
                 }
                 else
                 {
-                    strcpy(data.dhcp, "Static");
+                    strcpy(data.dhcp, "DHCP status: Inactive, static.");
                 }
 
                 WiFi.disconnect();
-                Serial.println("Data collected and disconnected.");
+                Serial.printf("Data successfully collected. Disconnected from %s\n", data.ssid);
             }
         }
         // Send to the queue

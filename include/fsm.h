@@ -5,13 +5,12 @@ enum State
 {
     IDLE,
     SCAN,
-    PROCESS,
-    DONE
+    PROCESS
 };
 
 extern State currentState;
 
-void fsmUpdate();
-void fsmInit();
+void setupFSM();
+void runFSM();
 
 #endif // !FSM_H
