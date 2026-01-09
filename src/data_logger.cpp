@@ -8,12 +8,17 @@ BTData receivedBTData;
 
 bool initSD()
 {
-    // init your SD here
+    Serial.println("Starting the SD Card");
+    while(!SD.begin()) {
+        delay(500);
+        Serial.print(".");
+    }
+    Serial.println("\nSucessfully started the SD Card!");
 }
 
-void logWiFiData()
+void logWiFiData()  
 {
-    if (xQueueReceive(wifiQueue, &receivedWiFiData, portMAX_DELAY))
+    if (xQueueReceive(WiFiQueue, &receivedWiFiData, pdMS_TO_TICKS(100)))
     {
         // log information in SD here
     }
@@ -21,5 +26,8 @@ void logWiFiData()
 
 void logBTData()
 {
-
+    if (xQueueReceive(BTQueue, &receivedBTData, pdMS_TO_TICKS(100)))
+    {
+        // log information in SD here
+    }
 }

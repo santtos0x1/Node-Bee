@@ -47,7 +47,7 @@ void runFSM()
             break;
         
         case PROCESS:
-            
+            // Put the SD log logic here
             currentState = IDLE;
             break;
     }
