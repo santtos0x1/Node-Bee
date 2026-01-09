@@ -17,7 +17,6 @@ struct WiFiData
   char subNetMask[16];
   char localIP[16];
   char dhcp[15];
-  unsigned long timestamp;
 }
 
 struct BTData
@@ -27,7 +26,6 @@ struct BTData
     int rssi;        
     char addressType[20];
     int channel;
-    unsigned long timestamp;
 }
 
 extern QueueHandle_t WiFiQueue;
