@@ -52,7 +52,6 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks
             strcpy(data.addressType, "Unknown");
             break;
         }
-        data.timestamp = millis();
         data.channel = 0;
 
         // Send to the queue

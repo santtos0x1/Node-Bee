@@ -40,7 +40,6 @@ void WiFiSniffer()
         strncpy(data.bssid, WiFi.BSSIDstr(i).c_str(), 19);
         data.encryptationType = WiFi.encryptionType(i);
         data.channel = WiFi.channel(i);
-        data.timestamp = millis();
 
         // Try to connect
         if (data.encryptationType == WIFI_AUTH_OPEN)
