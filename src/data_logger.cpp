@@ -7,17 +7,18 @@
 #include <Arduino_UUID.h>
 #include <SD.h>
 
+#define RAM_FLUSH_LIM 5
+
 String WiFiFileName;
 String BTFileName;
-
-UUID sessionUUID;
 
 WiFiData receivedWiFiData;
 BTData receivedBTData;
 
+int session_id = 0;
+
 void setupSD()
 {
-    sessionUUID = UUID::generate();
     Serial.println("Starting the SD Card");
     while (!SD.begin(5))
     {
@@ -29,10 +30,27 @@ void setupSD()
     SD.mkdir("/bluetooth_log_data");
 
     Serial.println("\nSucessfully started the SD Card!");
+
+    File rCounterData = SD.open("c_tr.txt",FILE_READ);
+    if(rCounterData)
+    {
+        String content = rCounterData.readString();
+        session_id = content.toInt();
+        rCounterData.close();
+    }
+
+    session_id++;
+
+    File wCounterData = SD.open("c_tr.txt", FILE_WRITE | O_TRUNC);
+    if(wCounterData)
+    {
+        wCounterData.print(session_id);
+        wCounterData.close()
+    }
 }
 
-WiFiFileName = "/wifi_log_data/wf_" + sessionUUID.toString() + ".csv";
-BTFileName = "/bluetooth_log_data/bt_" + sessionUUID.toString() + ".csv";
+WiFiFileName = "/wifi_log_data/wf_" + (String)session_id + ".csv";
+BTFileName = "/bluetooth_log_data/bt_" + (String)session_id + ".csv";
 
 void logWiFiData()
 {
@@ -44,6 +62,7 @@ void logWiFiData()
 
         if (dataFile)
         {
+            dataFile.println("SSID, RSSI, BSSID, CHANNEL, IP, DHCP, ENCRYPTATION TYPE, HOSTNAME, DNS IP, SUBNET MASK");
             dataFile.printf("%s,%d,%s,%d,%s,%s,%d,%s,%s,%s\n",
                             receivedWiFiData.ssid,
                             receivedWiFiData.rssi,
@@ -62,6 +81,11 @@ void logWiFiData()
         {
             Serial.printf("Error opening %s\n", WiFiFileName);
         }
+        if(session_id > RAM_FLUSH_LIM)
+        {
+            Serial.println("RAM flush sucessfully done!");
+            dataFile.flush();
+        }
     }
 }
 
@@ -73,6 +97,7 @@ void logBTData()
 
         Serial.printf("Creating file: '%s'.", BTFileName);
         
+        dataFile.println("NAME, ADRESS, RSSI, ADDRESS TYPE, CHANELL");
         if (dataFile)
         {
             dataFile.printf("%s,%s,%d,%s,%d\n",
@@ -82,11 +107,16 @@ void logBTData()
                             receivedBTData.addressType,
                             receivedBTData.channel);
             dataFile.close();
-            Serial.println("Data sucessfully saved"");
+            Serial.println("Data sucessfully saved");
         }
         else
         {
             Serial.printf("Error opening %s\n", BTFileName);
+        }
+        if(session_id > RAM_FLUSH_LIM)
+        {
+            Serial.println("RAM flush sucessfully done!");
+            dataFile.flush();
         }
     }
 }
