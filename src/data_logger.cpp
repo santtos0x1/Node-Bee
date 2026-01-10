@@ -25,7 +25,7 @@ void setupSD()
         delay(500);
         Serial.print(".");
     }
-    
+
     SD.mkdir("/wifi_log_data");
     SD.mkdir("/bluetooth_log_data");
 

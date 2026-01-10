@@ -3,6 +3,7 @@
 #include "bt_scan.h"
 #include "wifi_scan.h"
 #include "data_logger.h"
+#include "watchdog.h"
 
 // Libs
 #include <Arduino.h>
@@ -58,12 +59,22 @@ void runFSM()
         case SCAN:
             Serial.println("Current FSM state: SCAN");
 
+            if(!runWD)
+            {
+                digitalWrite(BUILT_IN_LED, HIGH); 
+                delay(2000);
+                digitalWrite(BUILT_IN_LED, LOW); 
+                setupSD();
+                currentState = IDLE;
+                break;
+            }
+
             if(scanMode == "WF")
             {
                 digitalWrite(BUILT_IN_LED, HIGH);
                 WiFiSniffer();
             }
-            else if(scanMode == "BT")
+            else
             {
                 digitalWrite(BUILT_IN_LED, HIGH);
                 BTSniffer();
