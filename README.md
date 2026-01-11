@@ -48,12 +48,6 @@ Inspirado na coruja, o Noctua observa silenciosamente, registra informações e 
 
 ---
 
-### Dados de Log
-
-- UUID do arquivo de log
-
----
-
 ## Componentes Necessários
 
 - **1x ESP32 NodeMCU** – microcontrolador principal  
