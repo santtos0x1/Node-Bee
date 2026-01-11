@@ -4,6 +4,7 @@
 #include "wifi_scan.h"
 #include "data_logger.h"
 #include "watchdog.h"
+#include "indicator.h"
 
 // Libs
 #include <Arduino.h>
@@ -23,11 +24,11 @@ void setupFSM()
     setupWiFi();
     setupBT();
     setupSD();
+    setupIndicator(BUILT_IN_LED);
 
     // Setting PINs
     pinMode(BTN_A_PINOUT, INPUT_PULLUP);
     pinMode(BTN_B_PINOUT, INPUT_PULLUP);
-    pinMode(BUILT_IN_LED, OUTPUT);
 
     // Start state
     currentState = IDLE;
@@ -56,17 +57,16 @@ void runFSM()
         case SCAN:
             Serial.println("Current FSM state: SCAN");
 
-            if(!runWD)
+            if(!SDDoctor)
             {
-                digitalWrite(BUILT_IN_LED, HIGH); 
-                delay(2000);
-                digitalWrite(BUILT_IN_LED, LOW); 
+                showError(BUILT_IN_LED);
+                //Try to restart the SD
                 setupSD();
                 currentState = IDLE;
                 break;
             }
             
-            digitalWrite(BUILT_IN_LED, HIGH);
+            
             
             if(scanMode == "WF")
             {
@@ -75,12 +75,7 @@ void runFSM()
                 BTSniffer();
             }
 
-            for(int i = 0; i < 5; i++)
-            {
-                digitalWrite(BUILT_IN_LED, HIGH);
-                delay(200);
-                digitalWrite(BUILT_IN_LED, LOW);            
-            }
+            showSuccess(BUILT_IN_LED);
 
             currentState = PROCESS;
             break;
@@ -95,12 +90,8 @@ void runFSM()
                 logBTData();
             }
 
-            for(int i = 0; i <= 2; i++)
-            {
-                digitalWrite(BUILT_IN_LED, HIGH);
-                delay(400);
-                digitalWrite(BUILT_IN_LED, LOW);
-            }
+            showProcessing(BUILT_IN_LED);
+
             currentState = IDLE;
             break;
     }

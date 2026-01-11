@@ -5,7 +5,7 @@
 #include <Arduino.h>
 #include <SD.h>
 
-bool runWD()
+bool SDDoctor()
 {
     if(SD.cardType() == CARD_NONE)
     {
