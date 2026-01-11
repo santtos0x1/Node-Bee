@@ -5,7 +5,7 @@
 #include "data_logger.h"
 #include "watchdog.h"
 #include "indicator.h"
-#include "web_server.h"
+#include "http_server.h"
 
 // Libs
 #include <Arduino.h>
@@ -112,7 +112,8 @@ void runFSM()
             
             if(serverStatus)
             {
-                
+                showSuccess(BUILT_IN_LED);
+                serverCFG();
             } else {
                 showError(BUILT_IN_LED);
             }

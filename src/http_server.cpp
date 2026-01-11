@@ -9,6 +9,9 @@
 
 WiFiServer server(80);
 
+const char* ssid = "";
+const char* pass = "";
+
 bool startServer() 
 {
     WiFi.disconnect();
@@ -23,7 +26,12 @@ bool startServer()
         {
             Serial.printf("Trying to connect to %s\n", WiFi.SSID(i));
             
-            WiFi.begin(WiFi.SSID(i).c_str());
+            if(ssid == "")
+            {
+                WiFi.begin(WiFi.SSID(i).c_str());
+            } else {
+                WiFi.begin(ssid, pass);
+            }
 
             int attempts = 0;
             while (WiFi.status() != WL_CONNECTED && attempts < 20) 
