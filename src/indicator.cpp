@@ -9,7 +9,7 @@ void setupIndicator(int ledPinout)
     pinMode(ledPinout, OUTPUT);
 }
 
-void showProcessing()
+void showProcessing(int ledPinout)
 {
     for(int i = 0; i <= 5; i++)
     {
@@ -29,7 +29,7 @@ void showSucess(int ledPinout)
     }
 }
 
-void showError(ledPinout)
+void showError(int ledPinout)
 {
     digitalWrite(ledPinout, HIGH); 
     delay(2000);

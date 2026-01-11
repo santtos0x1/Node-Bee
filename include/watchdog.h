@@ -3,6 +3,6 @@
 
 #include <Arduino.h>
 
-bool runWD();
+bool SDDoctor();
 
 #endif // !WATCHDOG_H

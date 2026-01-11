@@ -57,7 +57,7 @@ void runFSM()
         case SCAN:
             Serial.println("Current FSM state: SCAN");
 
-            if(!SDDoctor)
+            if(!SDDoctor())
             {
                 showError(BUILT_IN_LED);
                 //Try to restart the SD
@@ -65,8 +65,6 @@ void runFSM()
                 currentState = IDLE;
                 break;
             }
-            
-            
             
             if(scanMode == "WF")
             {
