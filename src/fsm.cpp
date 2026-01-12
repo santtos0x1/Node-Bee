@@ -119,4 +119,5 @@ void runFSM()
 
     btnALastState = digitalRead(BTN_A_PINOUT);
     btnBLastState = digitalRead(BTN_B_PINOUT);
+    btnClastState = digitalRead(BTN_C_PINOUT);
 }
