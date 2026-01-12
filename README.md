@@ -95,14 +95,17 @@ Inspirado na coruja, o Noctua observa silenciosamente, registra informações e 
 
 ## Máquina de Estados (FSM)
 
-1. **Idle**  
+1. **IDLE**  
    - Dispositivo ligado, aguardando ação  
 
-2. **Scan**  
+2. **SCAN**  
    - Varredura passiva Wi-Fi ou Bluetooth  
 
-3. **Process**  
+3. **PROCESS**  
    - Organização e filtragem dos dados coletados  
+
+4. **WEB_SERVER**
+   - Inicio do Servidor HTTP
 
 ![Cycle](operational_cycle.png)
 

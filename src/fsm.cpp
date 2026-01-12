@@ -62,8 +62,6 @@ void runFSM()
                 break;
             }
 
-            
-
         case SCAN:
             Serial.println("Current FSM state: SCAN");
 
