@@ -66,7 +66,9 @@ void runFSM()
         case SCAN:
             Serial.println("Current FSM state: SCAN");
 
-            if(!SDDoctor())
+            bool SDReport = SDDoctor()
+
+            if(!SDReport)
             {
                 showError(BUILT_IN_LED);
                 //Try to restart the SD
@@ -119,5 +121,5 @@ void runFSM()
 
     btnALastState = digitalRead(BTN_A_PINOUT);
     btnBLastState = digitalRead(BTN_B_PINOUT);
-    btnClastState = digitalRead(BTN_C_PINOUT);
+    btnCLastState = digitalRead(BTN_C_PINOUT);
 }
