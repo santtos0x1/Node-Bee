@@ -76,6 +76,8 @@ Inspirado na coruja, o Noctua observa silenciosamente, registra informações e 
 - **3x Botões táteis** – controle simples do fluxo  
 - **1x Bateria 5V** – operação portátil  
 - **1x Módulo microSD** – armazenamento dos dados coletados  
+- **2x Resitores de 330Ω** – Caso deseje ligar leds extras(**Opcional**)
+- **2x LEDs** – Feedback visual mais polido(**Opcional**)
 
 ---
 
