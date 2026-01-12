@@ -54,7 +54,7 @@ Inspirado na coruja, o Noctua observa silenciosamente, registra informações e 
 - RSSI (intensidade do sinal)  
 - Tipo de segurança  
 - O IP recebido pelo dispositivo
-- Se status do DHCP
+- Status do DHCP
 - Máscara de sub-rede
 - Hostname
 
