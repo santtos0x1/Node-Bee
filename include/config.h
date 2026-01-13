@@ -103,7 +103,7 @@ struct BTData
 struct WardriveData
 {
   char    ssid[33];
-  int32_t rssi;
+  int8_t rssi;
 };
 
 // Queue handles 
