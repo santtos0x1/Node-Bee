@@ -78,7 +78,7 @@ struct WiFiData
 {
   // Passive Scanning
   char    ssid[33];
-  int8_t rssi;
+  int8_t  rssi;
   char    bssid[20];
   uint8_t encryptionType;
   int     channel;
@@ -103,7 +103,7 @@ struct BTData
 struct WardriveData
 {
   char    ssid[33];
-  int8_t rssi;
+  int8_t  rssi;
 };
 
 // Queue handles 

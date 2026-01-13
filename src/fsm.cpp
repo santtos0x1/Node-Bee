@@ -170,7 +170,7 @@ void runFSM()
                 if(btnBPressed)
                 {
                     showError(Pins::BUILT_IN_LED);
-                    currentState = IDLE;
+                    currentState = IDLE;    
                     break;
                 }
             } else {
