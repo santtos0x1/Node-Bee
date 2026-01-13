@@ -12,36 +12,43 @@ WardriveData receivedWDData;
 
 int session_id = 0;
 
+String WiFiFolderSDPath = "/wifi_log_data";
+String BTFolderSDPath = "/bluetooth_log_data";
+
 void setupSD()
 {
-    bool startSD = SD.begin(Pins::SD_CS);
     DEBUG_PRINTLN("Starting the SD Card");
+    bool startSD = SD.begin(Pins::SD_CS);
     while (!startSD)
     {
         delay(Time::MID_DELAY);
-        Serial.print(".");
+        DEBUG_PRINT(".");
     }
 
-    SD.mkdir("/wifi_log_data");
-    SD.mkdir("/bluetooth_log_data");
+    SD.mkdir(WiFiFolderSDPath);
+    SD.mkdir(BTFolderSDPath);
 
     DEBUG_PRINTLN("\nSucessfully started the SD Card!");
 
-    File rCounterData = SD.open("c_tr.txt",FILE_READ);
+    DEBUG_PRINTLN("Reading the session file...");
+    File rCounterData = SD.open("session.txt",FILE_READ);
     if(rCounterData)
     {
         String content = rCounterData.readString();
         session_id = content.toInt();
         rCounterData.close();
+        DEBUG_PRINTLN("Done!");
     }
 
     session_id++;
 
-    File wCounterData = SD.open("c_tr.txt", "w");
+    DEBUG_PRINTLN("Defining a new session in session file...");
+    File wCounterData = SD.open("session.txt", "w");
     if(wCounterData)
     {
         wCounterData.print(session_id);
         wCounterData.close();
+        DEBUG_PRINTLN("Done!");
     }
 }
 
@@ -51,14 +58,17 @@ String WDFileName = "/wardrive_log_data/wd_" + (String)session_id + ".csv";
 
 void logWiFiData()
 {
+    DEBUG_PRINTLN("Receiving data from the WiFi queue...");
     if (xQueueReceive(WiFiQueue, &receivedWiFiData, pdMS_TO_TICKS(100)))
     {
+        DEBUG_PRINTLN("Done!");
         DEBUG_PRINTF("Creating file: '%s'", WiFiFileName);
 
         File dataFile = SD.open(WiFiFileName);
 
         if (dataFile)
         {
+            DEBUG_PRINTLN("Writing data in file on SD...");
             dataFile.println("SSID, RSSI, BSSID, CHANNEL, IP, DHCP, ENCRYPTATION TYPE, HOSTNAME, DNS IP, SUBNET MASK");
             dataFile.printf("%s,%d,%s,%d,%s,%s,%d,%s,%s,%s\n",
                             receivedWiFiData.ssid,
@@ -87,15 +97,17 @@ void logWiFiData()
 
 void logBTData()
 {
+    DEBUG_PRINTLN("Receiving data from the Bluetooth queue...");
     if (xQueueReceive(BTQueue, &receivedBTData, pdMS_TO_TICKS(100)))
     {
-        File dataFile = SD.open(BTFileName);
-
+        DEBUG_PRINTLN("Done!");
         DEBUG_PRINTF("Creating file: '%s'.", BTFileName);
+        File dataFile = SD.open(BTFileName);
         
-        dataFile.println("NAME, ADRESS, RSSI, ADDRESS TYPE, CHANELL");
         if (dataFile)
         {
+            DEBUG_PRINTLN("Writing data in file on SD...");
+            dataFile.println("NAME, ADRESS, RSSI, ADDRESS TYPE, CHANELL");
             dataFile.printf("%s,%s,%d,%s,%d\n",
                             receivedBTData.name,
                             receivedBTData.address,
@@ -103,7 +115,7 @@ void logBTData()
                             receivedBTData.addressType,
                             receivedBTData.channel);
             dataFile.close();
-            DEBUG_PRINTLN("Data sucessfully saved");
+            DEBUG_PRINTF("Sucessfully saved on %s\n", BTFileName);
         } else {
             DEBUG_PRINTF("Error opening %s\n", BTFileName);
         }
@@ -118,16 +130,18 @@ void logBTData()
 
 void logWDData()
 {
+    DEBUG_PRINTLN("Receiving data from the Bluetooth queue...");
     if (xQueueReceive(WDQueue, &receivedWDData, pdMS_TO_TICKS(100)))
     {
         File dataFile = SD.open(WDFileName);
         DEBUG_PRINTF("Creating file: '%s'.", WDFileName);
         if(dataFile)
         {
+            DEBUG_PRINTLN("Writing data in file on SD...");
             dataFile.println("SSID, RSSI");
             dataFile.printf("%s, %d\n", receivedWDData.ssid, receivedWDData.rssi);
             dataFile.close();
-            DEBUG_PRINTLN("Data sucessfully saved");
+            DEBUG_PRINTF("Sucessfully saved on %s\n", WDFileName);
         } else {
             DEBUG_PRINTF("Error opening %s\n", WDFileName);
         }
