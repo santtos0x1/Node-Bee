@@ -32,8 +32,10 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks
         }
         DEBUG_PRINTLN("Getting device address...");
         strncpy(data.address, advertisedDevice.getAddress().toString().c_str(), sizeof(data.address));
+
         DEBUG_PRINTLN("Getting device RSSI...");
         data.rssi = advertisedDevice.getRSSI();
+        
         DEBUG_PRINTLN("Getting device adress type...");
         esp_ble_addr_type_t type = advertisedDevice.getAddressType();
         switch (type)
