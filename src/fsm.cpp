@@ -167,16 +167,28 @@ void runFSM()
             {
                 showSuccess(Pins::BUILT_IN_LED);
                 serverCFG();
+                if(btnBPressed)
+                {
+                    showError(Pins::BUILT_IN_LED);
+                    currentState = IDLE;
+                    break;
+                }
             } else {
                 showError(Pins::BUILT_IN_LED);
+                currentState = IDLE;
+                break;
             }
 
-            currentState = IDLE;
-            break;
+            
         }
 
         case WARDRIVE_MODE:
         {
+            if(btnBPressed)
+            {
+                currentState = IDLE;
+                break;
+            }
             startWardrive();
             logWDData();
         }

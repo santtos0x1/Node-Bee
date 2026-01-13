@@ -1,12 +1,12 @@
 # Noctua
 
-**Noctua** é um dispositivo educacional baseado em **ESP32** projetado para **varredura passiva e coleta de dados de redes Wi-Fi e Bluetooth** no ambiente.  
+**Noctua** é um dispositivo educacional baseado em **ESP32** projetado para **varredura e coleta de dados de redes Wi-Fi e Bluetooth** no ambiente.  
 O projeto tem como foco **aprendizado prático** em redes, segurança, protocolos sem fio, sistemas embarcados e organização de dados.
 
 Inspirado na coruja, o Noctua observa silenciosamente, registra informações e permite análise posterior. Sem barulho, sem ataques, sem drama.
 
 > ⚠️ **Disclaimer**  
-> Noctua é estritamente **educacional**. O projeto não executa ataques, não explora vulnerabilidades e não interfere no funcionamento de redes ou dispositivos.  
+> Noctua é estritamente **educacional**. O projeto não explora vulnerabilidades e não interfere no funcionamento de redes ou dispositivos.  
 > Qualquer modificação ou uso fora do escopo ético e legal **não é responsabilidade do projeto original**.
 
 ---
@@ -40,6 +40,8 @@ Inspirado na coruja, o Noctua observa silenciosamente, registra informações e 
 - **Feedback Visual Inteligente:** Sistema de sinalização via LED para indicação de estados, erros de gravação e intensidade de sinal.
 
 - **Servidor de Acesso Remoto (HTTP):** Interface web integrada que permite a listagem e o download de logs diretamente via navegador, eliminando a necessidade de remoção física do cartão microSD.
+
+- **Wardriving:** Captura contínua de SSIDs e níveis de potência (RSSI), permitindo a análise da variação da cobertura e densidade de redes ao longo de um percurso através de logs.
 
 ---
 
