@@ -17,7 +17,7 @@ const bool manualWiFiConnection = false;
 bool startServer() 
 {
     WiFi.disconnect();
-    delay(LOW_DELAY);
+    delay(Time::LOW_DELAY);
 
     // Starts the scan
     int networks = WiFi.scanNetworks();
@@ -41,7 +41,7 @@ bool startServer()
 
             while (connStatus != WL_CONNECTED && attempts < SERVER_ATTEMPTS_LIMIT) 
             {
-                delay(MID_DELAY);
+                delay(Time::MID_DELAY);
                 DEBUG_PRINT(".");
                 attempts++;
             }
@@ -167,7 +167,7 @@ void serverCFG()
             handleDownload(client, fileName);
         }
 
-        delay(LOW_DELAY);
+        delay(Time::LOW_DELAY);
         client.stop();
     }
 }

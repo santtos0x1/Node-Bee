@@ -75,7 +75,7 @@ void setupBT()
 void BTSniffer()
 {
     DEBUG_PRINTLN("Starting bluetooth scan.");
-    BLEDevice::getScan()->start(scanTime, false);
+    BLEDevice::getScan()->start(SCAN_TIME, false);
     BLEDevice::getScan()->clearResults();
     DEBUG_PRINTLN("BLE Scan done.");
 }

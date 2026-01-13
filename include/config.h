@@ -3,44 +3,38 @@
 
 #include <Arduino.h>
 
-// === DEFINES ===
-// MACROS
+/* * =================================================================
+ * GLOBAL SETTINGS (MACROS)
+ * =================================================================
+ */
 #define ENABLE_SD      0 
 #define ENABLE_WIFI    1
 #define ENABLE_BT      1
 #define DEBUG          1
 
-// DEBUG MACROS
+/* * =================================================================
+ * DEBUGGING MACROS
+ * =================================================================
+ */
 #if DEBUG
-  #define DEBUG_PRINTLN(x)             Serial.println(x)
-  #define DEBUG_PRINT(x)               Serial.print(x)
+  #define DEBUG_PRINTLN(x)     Serial.println(x)
+  #define DEBUG_PRINT(x)       Serial.print(x)
   #define DEBUG_PRINTF(x, ...) Serial.printf(x, ##__VA_ARGS__)
 #else
   #define DEBUG_PRINTLN(x)             
   #define DEBUG_PRINT(x)               
-  #define DEBUG_PRINTF(x, __VA_ARGS__) 
+  #define DEBUG_PRINTF(x, ...) 
 #endif
 
-// Delay templates
-#define LOW_DELAY             100
-#define LMID_DELAY            300
-#define MID_DELAY             500
-#define HMID_DELAY            1000
-#define HIGH_DELAY            2000
-#define IDLE_DELAY            3000
-
+/* * =================================================================
+ * MODULE PARAMETERS (.cpp)
+ * =================================================================
+ */
 // bt_scan.cpp
-#define scanTime              5
+#define SCAN_TIME              5
 
 // data_logger.cpp
-#define RAM_FLUSH_LIM         5
-#define SD_CS_PIN             5
-
-// fsm.cpp
-#define BTN_A_PINOUT          14
-#define BTN_B_PINOUT          16
-#define BTN_C_PINOUT          18
-#define BUILT_IN_LED          2
+#define RAM_FLUSH_LIM          5
 
 // wifi_scan.cpp
 #define CONN_TIMEOUT_MS       (10 * 1000)
@@ -49,18 +43,47 @@
 #define WEB_SERVER_PORT       80
 #define HND_BUFFER_SIZE       512
 #define SERVER_ATTEMPTS_LIMIT 20
-// === === === ===
 
-// === Structs/Queue ===
+/* * =================================================================
+ * HARDWARE PINOUTS
+ * =================================================================
+ */
+namespace Pins 
+{
+  inline constexpr uint8_t BTN_A        = 14;
+  inline constexpr uint8_t BTN_B        = 16;
+  inline constexpr uint8_t BTN_C        = 18;
+  inline constexpr uint8_t BUILT_IN_LED = 2;
+  inline constexpr uint8_t SD_CS        = 5;
+}
+
+/* * =================================================================
+ * TIME CONSTANTS (DELAYS)
+ * =================================================================
+ */
+namespace Time {
+  inline constexpr uint16_t LOW_DELAY  = 100;
+  inline constexpr uint16_t LMID_DELAY = 300;
+  inline constexpr uint16_t MID_DELAY  = 500;
+  inline constexpr uint16_t HMID_DELAY = 1000;
+  inline constexpr uint16_t HIGH_DELAY = 2000;
+  inline constexpr uint16_t IDLE_DELAY = 3000;
+}
+
+/* * =================================================================
+ * DATA STRUCTURES & QUEUES (FREERTOS)
+ * =================================================================
+ */
 struct WiFiData
 {
-  //Without connection
+  // Passive Scanning
   char    ssid[33];
   int32_t rssi;
   char    bssid[20];
-  uint8_t encryptationType;
+  uint8_t encryptionType;
   int     channel;
-  // Connected
+  
+  // Active Connection
   char    hostname[33];
   char    dnsIP[16];
   char    subNetMask[16];
@@ -83,9 +106,9 @@ struct WardriveData
   int32_t rssi;
 };
 
+// Queue handles 
 extern QueueHandle_t WiFiQueue;
 extern QueueHandle_t BTQueue;
 extern QueueHandle_t WDQueue;
-// === === === ===
 
 #endif // !CONFIG_H

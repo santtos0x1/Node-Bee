@@ -32,14 +32,14 @@ void setupFSM()
     #if ENABLE_SD
         setupSD();
     #endif    
-    setupIndicator(BUILT_IN_LED);
+    setupIndicator(Pins::BUILT_IN_LED);
     serverStatus = startServer();
     setupWardrive();
 
     // Setting PINs
-    pinMode(BTN_A_PINOUT, INPUT_PULLUP);
-    pinMode(BTN_B_PINOUT, INPUT_PULLUP);
-    pinMode(BTN_C_PINOUT, INPUT_PULLUP);
+    pinMode(Pins::BTN_A, INPUT_PULLUP);
+    pinMode(Pins::BTN_A, INPUT_PULLUP);
+    pinMode(Pins::BTN_C, INPUT_PULLUP);
 
     // Start state
     currentState = IDLE;
@@ -47,24 +47,24 @@ void setupFSM()
 
 void runFSM()
 {
-    bool btnAPressed = (digitalRead(BTN_A_PINOUT) == LOW && btnALastState == HIGH);
-    bool btnBPressed = (digitalRead(BTN_B_PINOUT) == LOW && btnBLastState == HIGH);
-    bool btnCPressed = (digitalRead(BTN_C_PINOUT) == LOW && btnCLastState == HIGH);
+    bool btnAPressed = (digitalRead(Pins::BTN_A) == LOW && btnALastState == HIGH);
+    bool btnBPressed = (digitalRead(Pins::BTN_B) == LOW && btnBLastState == HIGH);
+    bool btnCPressed = (digitalRead(Pins::BTN_C) == LOW && btnCLastState == HIGH);
 
     switch(currentState)
     {
         case IDLE:
         {
-            if(digitalRead(BTN_A_PINOUT) == LOW)
+            if(digitalRead(Pins::BTN_A) == LOW)
             {
-                delay(LOW_DELAY);
+                delay(Time::LOW_DELAY);
                 unsigned long gap = millis() + 400;
                 bool doubleClicked = false;
 
-                while(digitalRead(BTN_A_PINOUT) == LOW);
+                while(digitalRead(Pins::BTN_A) == LOW);
 
                 while(millis() < gap) {
-                    if (digitalRead(BTN_A_PINOUT) == LOW) {
+                    if (digitalRead(Pins::BTN_A) == LOW) {
                         doubleClicked = true;
                         break;
                     }
@@ -74,7 +74,7 @@ void runFSM()
                 {
                     scanMode = "WD";
                     currentState = WARDRIVE_MODE;
-                    showOn(BUILT_IN_LED);
+                    showOn(Pins::BUILT_IN_LED);
                 } else {
                     scanMode = "WF";
                     currentState = SCAN;
@@ -98,7 +98,7 @@ void runFSM()
                 bool SDReport = SDDoctor();            
                 if(!SDReport)
                 {
-                    showError(BUILT_IN_LED);
+                    showError(Pins::BUILT_IN_LED);
                     //Try to restart the SD
                     setupSD();
                     currentState = IDLE;
@@ -111,7 +111,7 @@ void runFSM()
                 #if ENABLE_WIFI
                     WiFiSniffer();
                     currentState = PROCESS;
-                    showSuccess(BUILT_IN_LED);
+                    showSuccess(Pins::BUILT_IN_LED);
                     break;
                 #else
                     currentState = IDLE;
@@ -122,7 +122,7 @@ void runFSM()
                 #if ENABLE_BT
                     BTSniffer();
                     currentState = PROCESS;
-                    showSuccess(BUILT_IN_LED);
+                    showSuccess(Pins::BUILT_IN_LED);
                     break;
                 #else
                     currentState = IDLE;
@@ -156,7 +156,7 @@ void runFSM()
                 #endif
             }
 
-            showProcessing(BUILT_IN_LED);
+            showProcessing(Pins::BUILT_IN_LED);
         }
 
         case WEB_SERVER:
@@ -165,10 +165,10 @@ void runFSM()
             
             if(serverStatus && scanMode == "WS")
             {
-                showSuccess(BUILT_IN_LED);
+                showSuccess(Pins::BUILT_IN_LED);
                 serverCFG();
             } else {
-                showError(BUILT_IN_LED);
+                showError(Pins::BUILT_IN_LED);
             }
 
             currentState = IDLE;
@@ -182,7 +182,7 @@ void runFSM()
         }
     }
 
-    btnALastState = digitalRead(BTN_A_PINOUT);
+    btnALastState = digitalRead(Pins::BTN_A);
     btnBLastState = digitalRead(BTN_B_PINOUT);
     btnCLastState = digitalRead(BTN_C_PINOUT);
 }

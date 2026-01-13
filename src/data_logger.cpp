@@ -14,11 +14,11 @@ int session_id = 0;
 
 void setupSD()
 {
-    bool startSD = SD.begin(SD_CS_PIN);
+    bool startSD = SD.begin(Pins::SD_CS);
     DEBUG_PRINTLN("Starting the SD Card");
     while (!startSD)
     {
-        delay(MID_DELAY);
+        delay(Time::MID_DELAY);
         Serial.print(".");
     }
 

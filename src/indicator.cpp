@@ -15,7 +15,7 @@ void showProcessing(int ledPinout)
     for(int i = 0; i <= 5; i++)
     {
         digitalWrite(ledPinout, HIGH);
-        delay(LMID_DELAY);
+        delay(Time::LMID_DELAY);
         digitalWrite(ledPinout, LOW);
     }
 }
@@ -25,7 +25,7 @@ void showSucess(int ledPinout)
     for(int i = 0; i <= 3; i++)
     {
         digitalWrite(ledPinout, HIGH);
-        delay(MID_DELAY);
+        delay(Time::MID_DELAY);
         digitalWrite(ledPinout, LOW);
     }
 }
@@ -33,7 +33,7 @@ void showSucess(int ledPinout)
 void showError(int ledPinout)
 {
     digitalWrite(ledPinout, HIGH); 
-    delay(HIGH_DELAY);
+    delay(Time::HIGH_DELAY);
     digitalWrite(ledPinout, LOW); 
 }
 

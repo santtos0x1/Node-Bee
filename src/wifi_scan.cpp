@@ -36,11 +36,11 @@ void WiFiSniffer()
         strncpy(data.ssid, WiFi.SSID(i).c_str(), sizeof(data.ssid));
         data.rssi = WiFi.RSSI(i);
         strncpy(data.bssid, WiFi.BSSIDstr(i).c_str(), sizeof(data.bssid));
-        data.encryptationType = WiFi.encryptionType(i);
+        data.encryptionType = WiFi.encryptionType(i);
         data.channel = WiFi.channel(i);
 
         // Try to connect
-        if (data.encryptationType == WIFI_AUTH_OPEN)
+        if (data.encryptionType == WIFI_AUTH_OPEN)
         {
             unsigned long initTimer = millis();
 
@@ -56,7 +56,7 @@ void WiFiSniffer()
                     DEBUG_PRINT("\nConnection timeout...");
                     break;
                 }
-                delay(MID_DELAY);
+                delay(Time::MID_DELAY);
                 DEBUG_PRINT(".");
             }
 
