@@ -1,5 +1,10 @@
 # Noctua
 
+![Version](https://img.shields.io/badge/Noctua-v1.0-blueviolet?style=flat-square)
+![C++](https://img.shields.io/badge/Language-C%2B%2B-00599C?style=flat-square&logo=cplusplus&logoColor=white)
+![Arduino](https://img.shields.io/badge/Framework-Arduino-008184?style=flat-square&logo=arduino&logoColor=white)
+![Open Source](https://img.shields.io/badge/Open_Source-%E2%9D%A4-brightgreen?style=flat-square)
+
 **Noctua** é um dispositivo educacional baseado em **ESP32** projetado para **varredura e coleta de dados de redes Wi-Fi e Bluetooth** no ambiente.  
 O projeto tem como foco **aprendizado prático** em redes, segurança, protocolos sem fio, sistemas embarcados e organização de dados.
 
