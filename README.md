@@ -1,63 +1,62 @@
 # Noctua
 
-**Noctua** é um dispositivo educacional baseado em **ESP32** projetado para **varredura e coleta de dados de redes Wi-Fi e Bluetooth** no ambiente.  
-O projeto tem como foco **aprendizado prático** em redes, segurança, protocolos sem fio, sistemas embarcados e organização de dados.
+**Noctua** is an educational device based on the **ESP32** designed for **scanning and data collection of Wi-Fi and Bluetooth networks** in the environment.  
+The project focuses on **practical learning** in networking, security, wireless protocols, embedded systems, and data organization.
 
-Inspirado na coruja, o Noctua observa silenciosamente, registra informações e permite análise posterior. Sem barulho, sem ataques, sem drama.
+Inspired by the owl, Noctua observes silently, records information, and allows for later analysis. No noise, no attacks, no drama.
 
-> ⚠️ **Disclaimer**  
-> Noctua é estritamente **educacional**. O projeto não explora vulnerabilidades e não interfere no funcionamento de redes ou dispositivos.  
-> Qualquer modificação ou uso fora do escopo ético e legal **não é responsabilidade do projeto original**.
-
----
-
-## Objetivos do Projeto
-
-- Realizar **scan passivo** de redes Wi-Fi próximas e dispositivos BLE.  
-- Identificar **redes abertas**, sem tentativa de invasão.  
-- Coletar metadados técnicos relevantes para estudo e análise.  
-- Registrar dados em **microSD** para análise offline posterior.  
-- Explorar conceitos de FSM, eventos, estados e logging em sistemas embarcados.  
+> ⚠️ **Disclaimer** > Noctua is strictly **educational**. The project does not explore vulnerabilities and does not interfere with the operation of networks or devices.  
+> Any modification or use outside of the ethical and legal scope is **not the responsibility of the original project**.
 
 ---
 
-## Funcionalidades
+## Project Objectives
 
-- **Monitoramento Multi-protocolo:** Varredura passiva de redes Wi-Fi e dispositivos Bluetooth (Classic/BLE) em tempo real.
-
-- **Captura de Metadados:** Coleta automática de informações públicas de redes abertas durante o processo de conexão.
-
-- **Persistência de Dados Offline:** Registro estruturado de logs em cartão microSD (formato CSV), facilitando a análise posterior em softwares de planilhas.
-
-- **Arquitetura Modular:** Código totalmente desacoplado em módulos específicos (FSM, Scanners, Logger, Indicators), garantindo escalabilidade e fácil manutenção.
-
-- **Gerenciamento de Estados (FSM):** Lógica baseada em Máquina de Estados Finita para um fluxo previsível.
-
-- **Resiliência de Hardware (Watchdog):** Sistema de verificação contínua para garantir a inicialização e disponibilidade do módulo microSD.
-
-- **Interface de Diagnóstico:** debug via saída serial (suporte nativo para conversores CH340).
-
-- **Feedback Visual Inteligente:** Sistema de sinalização via LED para indicação de estados, erros de gravação e intensidade de sinal.
-
-- **Servidor de Acesso Remoto (HTTP):** Interface web integrada que permite a listagem e o download de logs diretamente via navegador, eliminando a necessidade de remoção física do cartão microSD.
-
-- **Wardriving:** Captura contínua de SSIDs e níveis de potência (RSSI), permitindo a análise da variação da cobertura e densidade de redes ao longo de um percurso através de logs.
+- Perform **passive scanning** of nearby Wi-Fi networks and BLE devices.  
+- Identify **open networks**, without any attempt at intrusion.  
+- Collect relevant technical metadata for study and analysis.  
+- Record data on a **microSD** for later offline analysis.  
+- Explore concepts of FSM, events, states, and logging in embedded systems.  
 
 ---
 
-## O que o Noctua Coleta
+## Features
+
+- **Multi-protocol Monitoring:** Passive scanning of Wi-Fi networks and Bluetooth (Classic/BLE) devices in real-time.
+
+- **Metadata Capture:** Automatic collection of public information from open networks during the connection process.
+
+- **Offline Data Persistence:** Structured log recording on a microSD card (CSV format), facilitating subsequent analysis in spreadsheet software.
+
+- **Modular Architecture:** Code fully decoupled into specific modules (FSM, Scanners, Logger, Indicators), ensuring scalability and easy maintenance.
+
+- **State Management (FSM):** Logic based on a Finite State Machine for a predictable flow.
+
+- **Hardware Resilience (Watchdog):** Continuous verification system to ensure the initialization and availability of the microSD module.
+
+- **Diagnostic Interface:** Debugging via serial output (native support for CH340 converters).
+
+- **Intelligent Visual Feedback:** LED signaling system for state indication, recording errors, and signal strength.
+
+- **Remote Access Server (HTTP):** Integrated web interface that allows listing and downloading logs directly via a browser, eliminating the need for physical removal of the microSD card.
+
+- **Wardriving:** Continuous capture of SSIDs and power levels (RSSI), allowing for the analysis of coverage variation and network density along a path through logs.
+
+---
+
+## What Noctua Collects
 
 ### Wi-Fi
 
 - SSID  
-- BSSID (MAC do Access Point)  
-- Canal Wi-Fi  
-- Banda (2.4 GHz / 5 GHz)  
-- RSSI (intensidade do sinal)  
-- Tipo de segurança  
-- O IP recebido pelo dispositivo
-- Status do DHCP
-- Máscara de sub-rede
+- BSSID (Access Point MAC)  
+- Wi-Fi Channel  
+- Band (2.4 GHz / 5 GHz)  
+- RSSI (Signal Strength)  
+- Security Type  
+- The IP received by the device
+- DHCP Status
+- Subnet Mask
 - Hostname
 
 ---
@@ -65,69 +64,58 @@ Inspirado na coruja, o Noctua observa silenciosamente, registra informações e 
 ### Bluetooth (BLE)
 
 - MAC Address  
-- Nome do dispositivo (quando disponível)  
+- Device name (when available)  
 - RSSI  
-- Tipo de endereço  
-- Canal BLE observado  
+- Address type  
+- Observed BLE channel  
 
 ---
 
 ![SCM](/docs/schematics1.png)
 
-## Componentes Necessários
+## Required Components
 
-- **1x ESP32 NodeMCU** – microcontrolador principal  
-- **3x Botões táteis** – controle simples do fluxo  
-- **1x Bateria 5V** – operação portátil (**Opcional**)
-- **1x Módulo microSD** – armazenamento dos dados coletados  
-- **2x Resitores de 330Ω** – Caso deseje ligar leds extras (**Opcional**)
-- **2x LEDs** – Feedback visual mais polido (**Opcional**)
+- **1x ESP32 NodeMCU** – Main microcontroller  
+- **3x Tactile buttons** – Simple flow control  
+- **1x 5V Battery** – Portable operation (**Optional**)
+- **1x microSD Module** – Storage for collected data  
+- **2x 330Ω Resistors** – In case you wish to connect extra LEDs (**Optional**)
+- **2x LEDs** – More polished visual feedback (**Optional**)
 
 ---
 
-## Arquitetura do Projeto
+## Project Architecture
 
 ### Hardware
 
-- ESP32 conectado à:
-  - Botões táteis  
-  - Módulo microSD  
-- Botões:
-  - **Botão A** → iniciar novo scan WiFi
-  - **Botão B** → iniciar novo scan Bluetooth
-  - **Botão C** → iniciar o servidor HTTP
+- ESP32 connected to:
+  - Tactile buttons  
+  - microSD module  
+- Buttons:
+  - **Button A** → Start new WiFi scan  
+  - **Button B** → Start new Bluetooth scan  
+  - **Button C** → Start the HTTP server  
 
 ---
 
-## Máquina de Estados (FSM)
+## Finite State Machine (FSM)
 
-1. **IDLE**  
-   - Dispositivo ligado, aguardando ação  
+1. **IDLE** - Device on, awaiting action  
 
-2. **SCAN**  
-   - Varredura passiva Wi-Fi ou Bluetooth  
+2. **SCAN** - Passive Wi-Fi or Bluetooth scan  
 
-3. **PROCESS**  
-   - Organização e filtragem dos dados coletados  
+3. **PROCESS** - Organization and filtering of collected data  
 
 4. **WEB_SERVER**
-   - Inicio do Servidor HTTP
+   - Start of the HTTP Server
 
 ![Cycle](/docs/operational_cycle.png)
 
-> A FSM é simples de propósito. Clareza > complexidade desnecessária.
+> The FSM is simple by design. Clarity > Unnecessary complexity.
 
 ---
 
-## Ética e Uso Responsável
+## License
 
-- Noctua **não executa sniffing ativo**, ataques ou exploração.  
-- Não coleta credenciais, payloads ou dados pessoais.  
-- O projeto existe para **entender como redes funcionam**, não para quebrá-las.  
-
----
-
-## Licença
-
-Este projeto é **open source**, licenciado sob **Apache License 2.0**.  
-Você pode estudar, modificar e distribuir o código, **desde que mantenha o uso educacional e ético**.
+This project is **open source**, licensed under the **Apache License 2.0**.  
+You may study, modify, and distribute the code, **provided that you maintain educational and ethical use.**
