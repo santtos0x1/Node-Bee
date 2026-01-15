@@ -57,7 +57,7 @@ void WiFiSniffer()
         /* Active Probing: Only attempts connection on Unsecured (Open) networks and with,
             an Ok quallity to stay connected.
         */
-        if (data.encryptionType == WIFI_AUTH_OPEN and data.rssi >= -75)
+        if (data.encryptionType == WIFI_AUTH_OPEN && data.rssi >= -75)
         {
             unsigned long initTimer = millis();
             WiFi.begin(data.ssid);

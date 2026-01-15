@@ -37,7 +37,7 @@ bool startServer()
         // Check the security protocol of the detected network
         wifi_auth_mode_t encryptionType = WiFi.encryptionType(i);
         int32_t dbm = WiFi.RSSI(i);
-        if(encryptionType == WIFI_AUTH_OPEN and dbm >= -65)
+        if(encryptionType == WIFI_AUTH_OPEN && dbm >= -65)
         {
             DEBUG_PRINTLN("Open network identified!");
             DEBUG_PRINTF("Attempting connection to SSID: %s\n", WiFi.SSID(i).c_str());
