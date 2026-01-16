@@ -15,7 +15,12 @@ QueueHandle_t WiFiQueue;
 void setupWiFi()
 {
     DEBUG_PRINTLN("Creating WiFi queue...");
-    WiFiQueue = xQueueCreate(50, sizeof(WiFiData));
+    #if ASYNC_SD_HANDLER
+        WiFiQueue = xQueueCreate(50, sizeof(WiFiData));    
+    #else
+        WiFiQueue = xQueueCreate(20, sizeof(WiFiData));
+    #endif
+    
 }
 
 /**

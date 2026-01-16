@@ -134,23 +134,27 @@ void runFSM()
             #endif
             
             if(scanMode == "WF")
-            {
+            {   
                 #if ENABLE_WIFI
                     WiFiSniffer(); // Start 802.11 packet capture
-                    currentState = IDLE;
+                    #if !ASYNC_SD_HANDLER
+                        processAllLogsSequential();
+                    #endif    
                     showSuccess(Pins::BUILT_IN_LED);
-                #else
-                    currentState = IDLE;
                 #endif
+
+                currentState = IDLE;
                 break;
             } else if(scanMode == "BT") {
                 #if ENABLE_BT
-                    BTSniffer(); // Start BLE advertising discovery
-                    currentState = IDLE;
+                    BTSniffer(); // Start BLE advertising discovery    
+                    #if !ASYNC_SD_HANDLER
+                        processAllLogsSequential();
+                    #endif
                     showSuccess(Pins::BUILT_IN_LED);
-                #else
-                    currentState = IDLE;
                 #endif
+
+                currentState = IDLE;
                 break;
             }
             break;
@@ -197,6 +201,9 @@ void runFSM()
             }
 
             bool openFound = startWardrive();
+            #if !ASYNC_SD_HANDLER
+                processAllLogsSequential();
+            #endif
             
             if(openFound) {
                 // Visual feedback for open networks found during wardrive

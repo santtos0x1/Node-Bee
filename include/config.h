@@ -7,10 +7,11 @@
  * GLOBAL SETTINGS (MACROS)
  * =================================================================
  */
-#define ENABLE_SD      0 
-#define ENABLE_WIFI    1
-#define ENABLE_BT      1
-#define DEBUG          1
+#define ENABLE_SD        0     
+#define ENABLE_WIFI      1
+#define ENABLE_BT        1
+#define DEBUG            1
+#define ASYNC_SD_HANDLER 1
 
 /* * =================================================================
  * DEBUGGING MACROS

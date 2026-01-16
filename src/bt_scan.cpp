@@ -52,10 +52,10 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks
         switch (type)
         {
         case BLE_ADDR_TYPE_PUBLIC:
-            strncpy(data.addressType, "Public", sizeof(data.addressType) - 1);
+            strncpy(data.addressType, "Public",     sizeof(data.addressType) - 1);
             break;
         case BLE_ADDR_TYPE_RANDOM:
-            strncpy(data.addressType, "Random", sizeof(data.addressType) - 1);
+            strncpy(data.addressType, "Random",     sizeof(data.addressType) - 1);
             break;
         case BLE_ADDR_TYPE_RPA_PUBLIC:
             strncpy(data.addressType, "RPA_Public", sizeof(data.addressType) - 1);
@@ -64,7 +64,7 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks
             strncpy(data.addressType, "RPA_Random", sizeof(data.addressType) - 1);
             break;
         default:
-            strncpy(data.addressType, "Unknown", sizeof(data.addressType) - 1);
+            strncpy(data.addressType, "Unknown",    sizeof(data.addressType) - 1);
             break;
         }
 
@@ -89,7 +89,11 @@ void setupBT()
         and the size of each BTData struct.    
     */
     DEBUG_PRINTLN("Creating the queue...");
-    BTQueue = xQueueCreate(50, sizeof(BTData));
+    #if ASYNC_SD_HANDLER
+        BTQueue = xQueueCreate(50, sizeof(BTData));
+    #else
+        BTQueue = xQueueCreate(20, sizeof(BTData));
+    #endif
 
     DEBUG_PRINTLN("Starting bluetooth modules...");
     BLEDevice::init("");

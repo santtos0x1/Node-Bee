@@ -15,7 +15,11 @@ QueueHandle_t WDQueue;
 void setupWardrive()
 {
     DEBUG_PRINTLN("Creating wardrive queue...");
-    WDQueue = xQueueCreate(50, sizeof(WardriveData));
+    #if ASYNC_SD_HANDLER
+        WDQueue = xQueueCreate(50, sizeof(WardriveData));
+    #else
+        WDQueue = xQueueCreate(20, sizeof(WardriveData));
+    #endif
     DEBUG_PRINTLN("Done!");
 }
 

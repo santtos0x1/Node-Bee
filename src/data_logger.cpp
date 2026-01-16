@@ -12,12 +12,6 @@ String WiFiFolderSDPath = "/wifi_log_data";
 String BTFolderSDPath = "/bluetooth_log_data";
 String WDFolderSDPath = "/wardrive_log_data";
 
-// Function prototypes
-void processWiFiLog(WiFiData data);
-void processBTLog(BTData data);
-void processWDLog(WardriveData data);
-void logSDTask(void * pvParameters);
-
 /**
  * Initializes the SD card module, ensures directory structure, 
  * and manages session ID persistence via a counter file.
@@ -70,54 +64,84 @@ void setupSD()
         DEBUG_PRINTLN("Done!");
     }
 
-    xTaskCreatePinnedToCore(
-        logSDTask,
-        "SD_Task",
-        8192,
-        NULL,
-        1,   
-        NULL,
-        0
-    );
+    #if ASYNC_SD_HANDLER
+        xTaskCreatePinnedToCore(
+            logSDTask,
+            "SD_Task",
+            8192,
+            NULL,
+            1,   
+            NULL,
+            0
+        );
+    #endif
 }
 
-/**
- * Main SD Task running on Core 0.
- * Centralizes queue reception to ensure thread-safety for the SD card.
- */
-void logSDTask(void * pvParameters)
-{
-    // Local buffers to hold data retrieved from queues
-    WiFiData wifiData;
-    BTData btData;
-    WardriveData wdData;
-
-    for(;;)
+#if ASYNC_SD_HANDLER
+    /**
+     * Main SD Task running on Core 0.
+     * Centralizes queue reception to ensure thread-safety for the SD card.
+     */
+    void logSDTask(void * pvParameters)
     {
-        // Non-blocking check for WiFi Queue
-        if (xQueueReceive(WiFiQueue, &wifiData, 0) == pdPASS) {
-             DEBUG_PRINTLN("Receiving data from the WiFi queue...");
-             processWiFiLog(wifiData);
-             DEBUG_PRINTLN("Done!");
-        }
+        // Local buffers to hold data retrieved from queues
+        WiFiData wifiData;
+        BTData btData;
+        WardriveData wdData;
 
-        // Non-blocking check for Bluetooth Queue
-        if (xQueueReceive(BTQueue, &btData, 0) == pdPASS) {
-             DEBUG_PRINTLN("Receiving data from the Bluetooth queue...");
-             processBTLog(btData);
-             DEBUG_PRINTLN("Done!");
-        }
+        for(;;)
+        {
+            // Non-blocking check for WiFi Queue
+            if (xQueueReceive(WiFiQueue, &wifiData, 0) == pdPASS) {
+                 DEBUG_PRINTLN("Receiving data from the WiFi queue...");
+                 processWiFiLog(wifiData);
+                 DEBUG_PRINTLN("Done!");
+            }
 
-        // Non-blocking check for Wardrive Queue
-        if (xQueueReceive(WDQueue, &wdData, 0) == pdPASS) {
-             DEBUG_PRINTLN("Receiving data from the Wardrive queue...");
-             processWDLog(wdData);
-             DEBUG_PRINTLN("Done!");
-        }
+            // Non-blocking check for Bluetooth Queue
+            if (xQueueReceive(BTQueue, &btData, 0) == pdPASS) {
+                 DEBUG_PRINTLN("Receiving data from the Bluetooth queue...");
+                 processBTLog(btData);
+                 DEBUG_PRINTLN("Done!");
+            }
 
-        vTaskDelay(pdMS_TO_TICKS(10));
+            // Non-blocking check for Wardrive Queue
+            if (xQueueReceive(WDQueue, &wdData, 0) == pdPASS) {
+                 DEBUG_PRINTLN("Receiving data from the Wardrive queue...");
+                 processWDLog(wdData);
+                 DEBUG_PRINTLN("Done!");
+            }
+
+            vTaskDelay(pdMS_TO_TICKS(10));
+        }
     }
-}
+#else
+    /**
+     * Single Core Helper: Processes all pending logs in the queues.
+     * This should be called periodically in the FSM or main loop.
+     */
+    void processAllLogsSequential()
+    {
+        WiFiData wifiData;
+        BTData btData;
+        WardriveData wdData;
+
+        // Drain WiFi Queue
+        while (xQueueReceive(WiFiQueue, &wifiData, 0) == pdPASS) {
+            processWiFiLog(wifiData);
+        }
+
+        // Drain BT Queue
+        while (xQueueReceive(BTQueue, &btData, 0) == pdPASS) {
+            processBTLog(btData);
+        }
+
+        // Drain Wardrive Queue
+        while (xQueueReceive(WDQueue, &wdData, 0) == pdPASS) {
+            processWDLog(wdData);
+        }
+    }
+#endif
 
 /**
  * Appends WiFi data to a CSV file.
@@ -134,6 +158,7 @@ void processWiFiLog(WiFiData data)
     bool fileExists = SD.exists(WiFiFileName);
     
     File dataFile = SD.open(WiFiFileName, FILE_APPEND);
+
     if (dataFile)
     {
         DEBUG_PRINTLN("Writing data to SD...");
