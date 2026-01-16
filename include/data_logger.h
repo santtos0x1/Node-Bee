@@ -4,7 +4,7 @@
 #include "config.h"
 
 void setupSD();
-void logWiFiData();
+void logWiFiData(void * pvParameters);
 void logBTData();
 void logWDData();
 

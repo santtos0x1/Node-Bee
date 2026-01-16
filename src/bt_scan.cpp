@@ -9,12 +9,16 @@
 
 QueueHandle_t BTQueue;
 BLEScan *pBLEscan;
-BTData data;
 
 class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks
 {
     void onResult(BLEAdvertisedDevice advertisedDevice)
     {
+        /*
+            Local struct to ensure thread-safety during rapid discovery.
+        */
+        BTData data;
+
         /*
             Clears the data struct before populating it to ensure memory integrity, 
             saving approximately 80 bytes of memory.
@@ -31,14 +35,14 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks
         if (haveName)
         {
             DEBUG_PRINTF("Device has a name: %s\n", advertisedDevice.getName().c_str());
-            strncpy(data.name, advertisedDevice.getName().c_str(), sizeof(data.name));
+            strncpy(data.name, advertisedDevice.getName().c_str(), sizeof(data.name) - 1);
         } else {
             DEBUG_PRINTLN("Device does not have a name!");
-            strcpy(data.name, "Unknown");
+            strncpy(data.name, "Unknown", sizeof(data.name) - 1);
         }
 
         DEBUG_PRINTLN("Getting device address...");
-        strncpy(data.address, advertisedDevice.getAddress().toString().c_str(), sizeof(data.address));
+        strncpy(data.address, advertisedDevice.getAddress().toString().c_str(), sizeof(data.address) - 1);
 
         DEBUG_PRINTLN("Getting device RSSI...");
         data.rssi = advertisedDevice.getRSSI();
@@ -48,19 +52,19 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks
         switch (type)
         {
         case BLE_ADDR_TYPE_PUBLIC:
-            strcpy(data.addressType, "Public");
+            strncpy(data.addressType, "Public", sizeof(data.addressType) - 1);
             break;
         case BLE_ADDR_TYPE_RANDOM:
-            strcpy(data.addressType, "Random");
+            strncpy(data.addressType, "Random", sizeof(data.addressType) - 1);
             break;
         case BLE_ADDR_TYPE_RPA_PUBLIC:
-            strcpy(data.addressType, "RPA_Public");
+            strncpy(data.addressType, "RPA_Public", sizeof(data.addressType) - 1);
             break;
         case BLE_ADDR_TYPE_RPA_RANDOM:
-            strcpy(data.addressType, "RPA_Random");
+            strncpy(data.addressType, "RPA_Random", sizeof(data.addressType) - 1);
             break;
         default:
-            strcpy(data.addressType, "Unknown");
+            strncpy(data.addressType, "Unknown", sizeof(data.addressType) - 1);
             break;
         }
 
@@ -69,36 +73,38 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks
 
 
         /* Sends the populated struct to the queue receiver.
-            Functions like an operational treadmill with a 10ms timeout per sent item.
+            Functions like an operational treadmill with a 100ms timeout per sent item.
         */
         DEBUG_PRINTLN("Sending to the queue...");
-        xQueueSend(BTQueue, &data, pdMS_TO_TICKS(10));
+        if (xQueueSend(BTQueue, &data, pdMS_TO_TICKS(100)) != pdPASS) {
+            DEBUG_PRINTLN("Bluetooth Queue Full! Data lost.");
+        }
     }
 };
 
 void setupBT()
 {
     /*
-        Initializes the queue, defining the maximum number of items (20) 
+        Initializes the queue, defining the maximum number of items (50) 
         and the size of each BTData struct.    
     */
     DEBUG_PRINTLN("Creating the queue...");
-    BTQueue = xQueueCreate(20, sizeof(BTData));
+    BTQueue = xQueueCreate(50, sizeof(BTData));
 
     DEBUG_PRINTLN("Starting bluetooth modules...");
     BLEDevice::init("");
-    BLEScan *pBLEScan = BLEDevice::getScan();
 
-    pBLEScan->setAdvertisedDeviceCallbacks(new MyAdvertisedDeviceCallbacks());
-    pBLEScan->setActiveScan(true);
-    pBLEScan->setInterval(100); // Set the scanning interval (time between scans).
-    pBLEScan->setWindow(99);    // Set the scanning window (actual time spent scanning).
+    pBLEscan = BLEDevice::getScan(); 
+    pBLEscan->setAdvertisedDeviceCallbacks(new MyAdvertisedDeviceCallbacks());
+    pBLEscan->setActiveScan(true);
+    pBLEscan->setInterval(100); 
+    pBLEscan->setWindow(99);    // Set the scanning window (actual time spent scanning).
 }
 
 void BTSniffer()
 {
     DEBUG_PRINTLN("Starting bluetooth scan...");
-    BLEDevice::getScan()->start(SCAN_TIME, false);
-    BLEDevice::getScan()->clearResults(); // Clear results from memory to prevent overflow
+    pBLEscan->start(SCAN_TIME, false);
+    pBLEscan->clearResults(); // Clear results from memory to prevent overflow
     DEBUG_PRINTLN("BLE Scan done!");
 }

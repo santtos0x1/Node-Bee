@@ -5,7 +5,6 @@ enum State
 {
     IDLE,
     SCAN,
-    PROCESS,
     WEB_SERVER,
     WARDRIVE_MODE
 };

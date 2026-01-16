@@ -137,7 +137,7 @@ void runFSM()
             {
                 #if ENABLE_WIFI
                     WiFiSniffer(); // Start 802.11 packet capture
-                    currentState = PROCESS;
+                    currentState = IDLE;
                     showSuccess(Pins::BUILT_IN_LED);
                 #else
                     currentState = IDLE;
@@ -146,40 +146,13 @@ void runFSM()
             } else if(scanMode == "BT") {
                 #if ENABLE_BT
                     BTSniffer(); // Start BLE advertising discovery
-                    currentState = PROCESS;
+                    currentState = IDLE;
                     showSuccess(Pins::BUILT_IN_LED);
                 #else
                     currentState = IDLE;
                 #endif
                 break;
             }
-            break;
-        }
-        
-        /* PROCESS STATE:
-           Handles the offloading of captured data from RTOS queues 
-           to the persistent storage (SD Card).
-        */
-        case PROCESS:
-        {
-            DEBUG_PRINTLN("Current FSM state: PROCESS");
-
-            if(scanMode == "WF")
-            {
-                #if ENABLE_SD
-                    logWiFiData(); // Flush WiFi queue to CSV
-                #endif
-                currentState = IDLE;
-                break;
-            } else if (scanMode == "BT") {
-                #if ENABLE_SD
-                    logBTData(); // Flush Bluetooth queue to CSV
-                #endif
-                currentState = IDLE;
-                break;
-            }
-
-            showProcessing(Pins::BUILT_IN_LED);
             break;
         }
 
@@ -216,13 +189,21 @@ void runFSM()
         */
         case WARDRIVE_MODE:
         {
-            if(btnBPressed) // Exit trigger for continuous scanning
+            // Exit condition
+            if(btnBPressed) 
             {
                 currentState = IDLE;
                 break;
             }
-            startWardrive();
-            logWDData();
+
+            bool openFound = startWardrive();
+            
+            if(openFound) {
+                // Visual feedback for open networks found during wardrive
+                showSuccess(Pins::BUILT_IN_LED); 
+            }
+            
+            // Note: This mode stays in WARDRIVE_MODE until BT_B is pressed
             break;
         }
     }

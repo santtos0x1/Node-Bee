@@ -15,7 +15,7 @@ QueueHandle_t WiFiQueue;
 void setupWiFi()
 {
     DEBUG_PRINTLN("Creating WiFi queue...");
-    WiFiQueue = xQueueCreate(10, sizeof(WiFiData));
+    WiFiQueue = xQueueCreate(50, sizeof(WiFiData));
 }
 
 /**
@@ -37,17 +37,17 @@ void WiFiSniffer()
         memset(&data, 0, sizeof(WiFiData)); // Memory integrity check
 
         // Passive Data Collection (SSID, RSSI, BSSID, Channel)
-        strncpy(data.ssid, WiFi.SSID(i).c_str(), sizeof(data.ssid));
+        strncpy(data.ssid, WiFi.SSID(i).c_str(), sizeof(data.ssid) - 1);
         data.rssi = WiFi.RSSI(i);
         if(data.rssi >= -50)
         {
-            strcpy(data.dbmQuality, "Strong", sizeof(data.dbmQuality));
+            strncpy(data.dbmQuality, "Strong", sizeof(data.dbmQuality) - 1);
         } else if (data.rssi >= -70)
         {
-            strcpy(data.dbmQuality, "Medium", sizeof(data.dbmQuality));
+            strncpy(data.dbmQuality, "Medium", sizeof(data.dbmQuality) - 1);
         } else if (data.rssi >= -85)
         {
-            strcpy(data.dbmQuality, "Weak", sizeof(data.dbmQuality));
+            strncpy(data.dbmQuality, "Weak", sizeof(data.dbmQuality) - 1);
         }
 
         strncpy(data.bssid, WiFi.BSSIDstr(i).c_str(), sizeof(data.bssid));
@@ -66,28 +66,30 @@ void WiFiSniffer()
             while (WiFi.status() != WL_CONNECTED)
             {
                 if (millis() - initTimer > CONN_TIMEOUT_MS) break;
-                delay(Time::MID_DELAY);
+                vTaskDelay(pdMS_TO_TICKS(10));
             }
 
             if (WiFi.status() == WL_CONNECTED)
             {
                 // Internal Network Data Extraction
-                strncpy(data.hostname, WiFi.getHostname(), sizeof(data.hostname));
-                strncpy(data.localIP, WiFi.localIP().toString().c_str(), sizeof(data.localIP));
-                strncpy(data.dnsIP, WiFi.dnsIP(0).toString().c_str(), sizeof(data.dnsIP));
-                strncpy(data.subNetMask, WiFi.subnetMask().toString().c_str(), sizeof(data.subNetMask));
+                strncpy(data.hostname, WiFi.getHostname(), sizeof(data.hostname) - 1);
+                strncpy(data.localIP, WiFi.localIP().toString().c_str(), sizeof(data.localIP) - 1);
+                strncpy(data.dnsIP, WiFi.dnsIP(0).toString().c_str(), sizeof(data.dnsIP) - 1);
+                strncpy(data.subNetMask, WiFi.subnetMask().toString().c_str(), sizeof(data.subNetMask) - 1);
 
                 // DHCP Status check via ESP-IDF adapter
                 tcpip_adapter_dhcp_status_t DHCPStatus;
                 tcpip_adapter_dhcpc_get_status(TCPIP_ADAPTER_IF_STA, &DHCPStatus);
-                strcpy(data.dhcp, (DHCPStatus == TCPIP_ADAPTER_DHCP_STARTED) ? "Active" : "Static");
+                strncpy(data.dhcp, (DHCPStatus == TCPIP_ADAPTER_DHCP_STARTED) ? "Active" : "Static", sizeof(data.dhcp));
 
                 WiFi.disconnect();
             }
         }
 
         // Offload captured data to the processing queue
-        xQueueSend(WiFiQueue, &data, pdMS_TO_TICKS(10));
+        if (xQueueSend(WiFiQueue, &data, pdMS_TO_TICKS(100)) != pdPASS) {
+            DEBUG_PRINTLN("WiFi Queue Full! Data lost.");
+        }
     }
     
     // Manual memory management for scan results
