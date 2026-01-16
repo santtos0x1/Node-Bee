@@ -47,6 +47,18 @@ Inspired by the owl, Noctua observes silently, records information, and allows f
 
 - **Wardriving:** Continuous capture of SSIDs and power levels (RSSI), allowing for the analysis of coverage variation and network density along a path through logs.
 
+### 🟢 Hybrid Parallel Processing Architecture
+
+- **Asynchronous Dual-Core Execution:** Full utilization of the ESP32's dual-core architecture via FreeRTOS. While **Core 1** manages the FSM and radio sensors (Wi-Fi/BT) in real-time, **Core 0** is dedicated exclusively to heavy microSD write operations, eliminating I/O bottlenecks.
+
+- **Queue-Based Communication (RTOS Queues):** Implementation of inter-core message queues for data packet transport. This ensures that no network data is lost during traffic spikes, acting as a high-speed hardware buffer.
+
+- **Smart Memory Management:** Dynamic memory allocation for data structs within discovery callbacks, ensuring thread safety and preventing race conditions between the scanning and logging tasks.
+
+- **Hybrid Compatibility Mode:** Through compilation macros (`ASYNC_SD_HANDLER`), the system can automatically toggle between Parallel Mode (Dual-Core) and Sequential Mode (Single-Core). This ensures the firmware remains stable across all ESP32 variants (S2, C3, or the Classic model).
+
+- **Sequential Log Fallback:** In single-core systems, the firmware executes an automated "queue drain" routine immediately after each scan, ensuring data persistence without disrupting the FSM logic.
+
 ---
 
 ## What Noctua Collects
