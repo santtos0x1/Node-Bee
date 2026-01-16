@@ -137,7 +137,7 @@ void runFSM()
             {   
                 #if ENABLE_WIFI
                     WiFiSniffer(); // Start 802.11 packet capture
-                    #if !ASYNC_SD_HANDLER
+                    #if !ASYNC_SD_HANDLER && ENABLE_SD
                         processAllLogsSequential();
                     #endif    
                     showSuccess(Pins::BUILT_IN_LED);
@@ -148,7 +148,7 @@ void runFSM()
             } else if(scanMode == "BT") {
                 #if ENABLE_BT
                     BTSniffer(); // Start BLE advertising discovery    
-                    #if !ASYNC_SD_HANDLER
+                    #if !ASYNC_SD_HANDLER && ENABLE_SD
                         processAllLogsSequential();
                     #endif
                     showSuccess(Pins::BUILT_IN_LED);
@@ -201,7 +201,7 @@ void runFSM()
             }
 
             bool openFound = startWardrive();
-            #if !ASYNC_SD_HANDLER
+            #if !ASYNC_SD_HANDLER && ENABLE_SD
                 processAllLogsSequential();
             #endif
             
