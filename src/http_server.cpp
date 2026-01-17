@@ -12,10 +12,9 @@
 // Instantiates the WiFi server on the port defined in config.h
 WiFiServer server(WEB_SERVER_PORT);
 
-// Network credentials for manual connection mode
-const char* ssid = "";
-const char* pass = "";
-const bool manualWiFiConnection = false;
+// Network credentials
+const char* apSsid= "Suspicius Network";
+const char* apPass = "creep";
 
 /**
    Scans for available networks and attempts to establish an HTTP server.
@@ -23,67 +22,27 @@ const bool manualWiFiConnection = false;
  */
 bool startServer() 
 {
-    // Ensure the radio is in a clean state before starting the scan
-    DEBUG_PRINTLN(CLR_YELLOW "Resetting WiFi connection..." CLR_RESET);
-    WiFi.disconnect();
-    delay(Time::LOW_DELAY);
+    DEBUG_PRINTLN(CLR_YELLOW "Starting WiFi AP" CLR_RESET);
+    bool apRaiseUp = WiFi.softAP(apSsid, apPass);
 
-    // Perform a synchronous scan of nearby Access Points
-    DEBUG_PRINTLN(CLR_YELLOW "Scanning for available networks..." CLR_RESET);
-    int networks = WiFi.scanNetworks();
-
-    for (int i = 0; i < networks; i++)
+    while(!apRaiseUp)
     {
-        // Check the security protocol of the detected network
-        wifi_auth_mode_t encryptionType = WiFi.encryptionType(i);
-        int32_t dbm = WiFi.RSSI(i);
-        if(encryptionType == WIFI_AUTH_OPEN && dbm >= -65)
-        {
-            DEBUG_PRINTLN(CLR_GREEN "Open network identified!" CLR_RESET);
-            DEBUG_PRINTF(CLR_CYN "Attempting connection to SSID: %s\n" CLR_RESET, WiFi.SSID(i).c_str());
-            
-            // Logic switch between hardcoded credentials and open connection
-            if(!manualWiFiConnection)
-            {
-                DEBUG_PRINTLN("Mode: Automatic Association");
-                WiFi.begin(WiFi.SSID(i).c_str());
-            } else {
-                DEBUG_PRINTLN("Mode: Manual Configuration");
-                WiFi.begin(ssid, pass);
-            }
-
-            // Connection timeout loop to prevent infinite blocking
-            int attempts = 0;
-            wl_status_t connStatus = WiFi.status();
-
-            while (connStatus != WL_CONNECTED && attempts < SERVER_ATTEMPTS_LIMIT) 
-            {
-                delay(Time::MID_DELAY);
-                DEBUG_PRINT(CLR_YELLOW "." CLR_RESET);
-                attempts++;
-                connStatus = WiFi.status(); // Update status in each iteration
-            }
-
-            if(connStatus == WL_CONNECTED)
-            {
-                DEBUG_PRINTLN(CLR_GREEN "\nConnection established successfully!" CLR_RESET);
-                break; // Exit scan loop once connected
-            } else {
-                DEBUG_PRINTLN(CLR_RED "\nFailed to associate with this network." CLR_RESET);
-            }
-        }
-    }
-
+        DEBUG_PRINT(".");
+        delay(Time::LOW_DELAY);
+    };
+    
     // Final check to initiate the HTTP service
-    if(WiFi.status() == WL_CONNECTED)
+    if(apRaiseUp)
     {
-        DEBUG_PRINTLN(CLR_YELLOW "Initializing HTTP Listener..." CLR_RESET);
+        DEBUG_PRINTLN(CLR_GREEN "\nAP Connection created successfully!" CLR_RESET);
+        DEBUG_PRINTLN(CLR_YELLOW "Initializing listener..." CLR_RESET);
         server.begin();
         DEBUG_PRINTLN(CLR_GREEN "Server active!" CLR_RESET);
         DEBUG_PRINT(CLR_CYN "Local IP Address: " CLR_RESET);
-        DEBUG_PRINTLN(WiFi.localIP());
+        DEBUG_PRINTLN(WiFi.softAPIP());
         return true;
     } else {
+        DEBUG_PRINTLN(CLR_RED "\nFailed to create the AP." CLR_RESET);
         DEBUG_PRINTLN(CLR_RED "Server startup failed: No valid connection." CLR_RESET);
         return false;
     }
@@ -192,6 +151,16 @@ void serverRun()
     
     if(client)
     {
+        long timeout = millis();
+        while(!client.available() && millis() - timeout < 500) {
+            delay(Time::HIGH_DELAY);
+        }
+
+        if(!client.available()) {
+            client.stop();
+            return;
+        }
+
         DEBUG_PRINTLN(CLR_GRN "New client connection established." CLR_RESET);
         
         // Simple HTTP GET request parsing
