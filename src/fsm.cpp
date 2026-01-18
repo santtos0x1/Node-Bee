@@ -144,6 +144,7 @@ void runFSM()
 
                 currentState = IDLE;
                 break;
+
             } else if(scanMode == "BT") {
                 #if SYS_FEATURE_BLE_STACK
                     BluetoothSniffer(); // Start BLE advertising discovery    
@@ -156,6 +157,7 @@ void runFSM()
                 currentState = IDLE;
                 break;
             }
+
             break;
         }
 
@@ -175,15 +177,18 @@ void runFSM()
                 if(btnBPressed)
                 {
                     showError(Pins::BUILT_IN_LED);
+
                     currentState = IDLE;    
                     break;
                 }
             } else {
                 DEBUG_PRINTLN(F(CLR_RED "Server Error or Invalid Mode!" CLR_RESET));
                 showError(Pins::BUILT_IN_LED);
+
                 currentState = IDLE;
                 break;
             }
+            
             break;
         }
 
@@ -196,6 +201,7 @@ void runFSM()
             if(btnBPressed) 
             {
                 DEBUG_PRINTLN(F(CLR_YELLOW "Exiting WARDRIVE_MODE..." CLR_RESET));
+
                 currentState = IDLE;
                 break;
             }
