@@ -123,9 +123,8 @@ Inspired by the owl, Noctua observes silently, records information, and allows f
 
 3. **PROCESS** - Organization and filtering of collected data  
 
-4. **WEB_SERVER**
-   - Start of the HTTP Server
-
+4. **WEB_SERVER** - Start of the HTTP Server
+  
 ![Cycle](/docs/FSM.png)
 
 > The FSM is simple by design. Clarity > Unnecessary complexity.
