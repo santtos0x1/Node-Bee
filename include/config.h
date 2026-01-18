@@ -21,7 +21,7 @@
 #if SYS_CFG_DEBUG_MODE
   #define DEBUG_PRINTLN(x)     Serial.println(x)
   #define DEBUG_PRINT(x)       Serial.print(x)
-  #define DEBUG_PRINTF(f, ...) Serial.printf(f, ##__VA_ARGS__)
+  #define DEBUG_PRINTF(f, ...) Serial.printf(String(f).c_str(), ##__VA_ARGS__)
 #else
   #define DEBUG_PRINTLN(x)             
   #define DEBUG_PRINT(x)               
@@ -116,7 +116,5 @@ struct WardriveData
 extern QueueHandle_t WiFiQueue;
 extern QueueHandle_t BTQueue;
 extern QueueHandle_t WDQueue;
-
-extern uint8_t systemState;
 
 #endif // !CONFIG_H

@@ -47,7 +47,7 @@ bool startWardrive()
         data.rssi = WiFi.RSSI(n);
 
         // Debug output - Formato corrigido para o printf
-        DEBUG_PRINTF(F(CLR_CYN "SSID: %s | RSSI: %d\n" CLR_RESET), data.ssid, data.rssi);
+        DEBUG_PRINTF(F(CLR_YELLOW "SSID: %s | RSSI: %d\n" CLR_RESET), data.ssid, data.rssi);
 
         // Push data to the queue with a 10ms timeout
 

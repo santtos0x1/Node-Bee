@@ -36,7 +36,7 @@ bool startServer()
         DEBUG_PRINTLN(F(CLR_YELLOW "Initializing listener..." CLR_RESET));
         server.begin();
         DEBUG_PRINTLN(F(CLR_GREEN "Server active!" CLR_RESET));
-        DEBUG_PRINT(F(CLR_CYN "Local IP Address: " CLR_RESET));
+        DEBUG_PRINT(F(CLR_YELLOW "Local IP Address: " CLR_RESET));
         DEBUG_PRINTLN(WiFi.softAPIP());
         return true;
     } else {
@@ -68,7 +68,7 @@ void handleDownload(WiFiClient& client, String path)
         client.println();
 
         uint8_t buffer[HANDLER_BUFFER_SIZE];
-        DEBUG_PRINTLN(F(CLR_CYN "Streaming data payload..." CLR_RESET));
+        DEBUG_PRINTLN(F(CLR_YELLOW "Streaming data payload..." CLR_RESET));
         while (dataFile.available())
         {
             int bytesRead = dataFile.read(buffer, sizeof(buffer));

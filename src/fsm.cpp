@@ -5,13 +5,15 @@
 #include "indicator.h"
 #include "watchdog.h"
 #include "wardrive.h"
-#include "bt_scan.h"
+#include "bluetooth_scan.h"
 #include "config.h"
 #include "fsm.h"
 #include "utils.h"
 
 // Libs
 #include <Arduino.h>
+
+State currentState;
 
 // Edge detection variables for physical buttons (Debouncing)
 bool btnALastState = HIGH;
@@ -188,7 +190,7 @@ void runFSM()
                 currentState = IDLE;
                 break;
             }
-            
+
             break;
         }
 

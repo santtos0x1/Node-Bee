@@ -495,7 +495,7 @@
                 "ARDUINO=10812",
                 "ARDUINO_VARIANT=\"nodemcu-32s\"",
                 "ARDUINO_BOARD=\"NodeMCU-32S\"",
-                "ARDUINO_PARTITION_default",
+                "ARDUINO_PARTITION_huge_app",
                 ""
             ],
             "cStandard": "gnu99",

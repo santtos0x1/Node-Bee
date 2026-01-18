@@ -10,7 +10,7 @@
 // Local libs
 #include "data_logger.h"
 #include "wifi_scan.h"
-#include "bt_scan.h"
+#include "bluetooth_scan.h"
 #include "config.h"
 #include "fsm.h"
 #include "boot_manager.h"
