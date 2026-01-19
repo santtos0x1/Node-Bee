@@ -14,7 +14,7 @@ WiFiServer server(WEB_SERVER_PORT);
 
 // Network credentials
 const char* apSsid= "Suspicius Network";
-const char* apPass = "creep";
+const char* apPass = "imacreep1212";
 
 /**
    Scans for available networks and attempts to establish an HTTP server.

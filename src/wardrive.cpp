@@ -10,18 +10,30 @@
 
 QueueHandle_t WDQueue;
 
+int nextIndex = 0;
+char knownBSSIDs[MAX_KNOWN_NETWORKS][18];
+
+bool isNewNetwork(const char* bssid) {
+    for (int i = 0; i < MAX_KNOWN_NETWORKS; i++) {
+        if (strcmp(knownBSSIDs[i], bssid) == 0) {
+            return false;
+        }
+    }
+    return true;
+}
+
 /**
  * Initializes the FreeRTOS queue to handle Wardriving data packets.
  */
 void setupWardrive()
 {
-    DEBUG_PRINTLN(F(CLR_YELLOW "Creating wardrive queue..." CLR_RESET));
-    #if ASYNC_SD_HANDLER
-        WDQueue = xQueueCreate(DUALCORE_MAX_XQUEUE, sizeof(WardriveData));
-    #else
+    #if ASYNC_SD_HANDLER && SYS_FEATURE_SD_STORAGE
+        DEBUG_PRINTLN(F(CLR_YELLOW "Creating wardrive queue..." CLR_RESET));
+       WDQueue = xQueueCreate(DUALCORE_MAX_XQUEUE, sizeof(WardriveData));
+    #elif !ASYNC_SD_HANDLER && SYS_FEATURE_SD_STORAGE
+        DEBUG_PRINTLN(F(CLR_YELLOW "Creating wardrive queue..." CLR_RESET));    
         WDQueue = xQueueCreate(SINGLECORE_MAX_XQUEUE, sizeof(WardriveData));
     #endif
-    DEBUG_PRINTLN(F(CLR_GREEN "Done!" CLR_RESET));
 }
 
 /**
@@ -31,43 +43,59 @@ void setupWardrive()
 bool startWardrive()
 {
     bool openNetworkfound = false;
-    DEBUG_PRINTLN(F(CLR_YELLOW "Starting network scan..." CLR_RESET));
+
+    // Check the current status of the scan
+    int16_t scanStatus = WiFi.scanComplete();
     
-    // Synchronous scan (blocks execution until finished)
-    int networks = WiFi.scanNetworks();
+    // 1. If scan is still running, we exit to keep the main loop (and buttons) responsive
+    if (scanStatus == WIFI_SCAN_RUNNING) 
+    {
+        return false;
+    } 
+    // 2. If no scan is active, start a new asynchronous scan
+    else if (scanStatus == WIFI_SCAN_FAILED)
+    {
+        // 'true' for async mode
+        WiFi.scanNetworks(true);
+        return false;
+    } 
+    // 3. If scan is finished (scanStatus > 0), process the results
+    else if (scanStatus > 0)
+    {
+        for(int n = 0; n < scanStatus; n++)
+        {   
+            if (digitalRead(Pins::BTN_B) == LOW) {
+                WiFi.scanDelete(); // Free memory before leaving
+                return false; 
+            }
 
-    for(int n = 0; n < networks; n++) {
-        WardriveData data;
+            WardriveData data;
 
-        DEBUG_PRINTLN(F("Getting encryption type..."));
-        wifi_auth_mode_t encryptionType = WiFi.encryptionType(n);
+            // Copy BSSID and ensure null-termination   
+            strncpy(data.bssid, WiFi.BSSIDstr(n).c_str(), sizeof(data.bssid) - 1);
+            data.bssid[sizeof(data.bssid) - 1] = '\0';
 
-        DEBUG_PRINTLN(F("Getting SSID & RSSI..."));
-        strncpy(data.ssid, WiFi.SSID(n).c_str(), sizeof(data.ssid) - 1);
-        data.rssi = WiFi.RSSI(n);
+            // Filter out already known networks
+            if (!isNewNetwork(data.bssid)) {
+                continue; 
+            }
+            
+            // Add new BSSID to the circular buffer
+            strncpy(knownBSSIDs[nextIndex], data.bssid, 18);
+            DEBUG_PRINTF(" --> BSSID: %s\n", data.bssid);
+            nextIndex = (nextIndex + 1) % MAX_KNOWN_NETWORKS;
 
-        // Debug output - Formato corrigido para o printf
-        DEBUG_PRINTF(F(CLR_YELLOW "SSID: %s | RSSI: %d\n" CLR_RESET), data.ssid, data.rssi);
-
-        // Push data to the queue with a 10ms timeout
-
-        if (encryptionType == WIFI_AUTH_OPEN)
-        {
-            DEBUG_PRINTLN(F(CLR_GREEN "Open network found!" CLR_RESET));
-            openNetworkfound = true;
+            #if (ASYNC_SD_HANDLER && SYS_FEATURE_SD_STORAGE) || (!ASYNC_SD_HANDLER && SYS_FEATURE_SD_STORAGE)
+                // Push data to the queue with a 10ms timeout
+                if (xQueueSend(WDQueue, &data, pdMS_TO_TICKS(100)) != pdPASS) {
+                    DEBUG_PRINTLN(F(CLR_RED "Wardrive Queue Full! Data lost." CLR_RESET));
+                }
+            #endif
         }
 
-        if (xQueueSend(WDQueue, &data, pdMS_TO_TICKS(100)) == pdPASS) {
-            // Sucesso opcional no log
-        } else {
-            DEBUG_PRINTLN(F(CLR_RED "Wardrive Queue Full! Data lost." CLR_RESET));
-        }
+        /* Crucial: Clears the scan results from RAM. */
+        WiFi.scanDelete();
     }
-
-    /* Crucial: Clears the scan results from RAM. 
-       Without this, the ESP32 heap will crash after a few scans. */
-    DEBUG_PRINTLN(F(CLR_YELLOW "Cleaning scan memory..." CLR_RESET));
-    WiFi.scanDelete();
     
     return openNetworkfound;
 }

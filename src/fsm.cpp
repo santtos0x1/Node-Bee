@@ -12,6 +12,7 @@
 
 // Libs
 #include <Arduino.h>
+#include <WiFi.h>
 
 State currentState;
 
@@ -41,11 +42,15 @@ void setupFSM()
     #if SYS_FEATURE_SD_STORAGE
         setupSD();
     #endif    
-    
+    #if SYS_FEATURE_WARDRIVE_SCAN
+        setupWardrive();
+    #endif    
+    #if SYS_FEATURE_SERVER
+        serverStatus = startServer(); // Initialize the data access portal
+    #endif
+
     // Core services and UI feedback initialization
-    setupIndicator(Pins::BUILT_IN_LED);
-    serverStatus = startServer(); // Initialize the data access portal
-    setupWardrive();
+    setupIndicator(Pins::BLUE_LED);
 
     // Hardware Input configuration with internal pull-up resistors
     pinMode(Pins::BTN_A, INPUT_PULLUP);
@@ -77,7 +82,6 @@ void runFSM()
             if(digitalRead(Pins::BTN_A) == LOW)
             {
                 // Double-click detection logic for mode switching
-                delay(Time::LOW_DELAY);
                 unsigned long gap = millis() + 400; // 400ms detection window
                 bool doubleClicked = false;
 
@@ -118,9 +122,7 @@ void runFSM()
            Executes the sniffing routine based on the active scanMode.
         */
         case SCAN:
-        {
-            DEBUG_PRINTLN(F(CLR_YELLOW "Current FSM state: SCAN" CLR_RESET));
-            
+        {   
             #if SYS_FEATURE_SD_STORAGE
                 // Verify storage health before attempting to write
                 bool sdReport = SdHealthyChecker();            
@@ -136,23 +138,30 @@ void runFSM()
             
             if(scanMode == "WF")
             {   
+                showOn(Pins::BLUE_LED);
+                delay(300);
+                showOff(Pins::BLUE_LED);
                 #if SYS_FEATURE_WIFI_SCAN
                     wifiSniffer(); // Start 802.11 packet capture
                     #if !ASYNC_SD_HANDLER && SYS_FEATURE_SD_STORAGE
                         processAllLogsSequential();
                     #endif    
-                    showSuccess(Pins::BUILT_IN_LED);
+                    showSuccess(Pins::GREEN_LED);
                 #endif
 
                 currentState = IDLE;
                 break;
 
             } else if(scanMode == "BT") {
+                showOn(Pins::BLUE_LED);
+                delay(300);
+                showOff(Pins::BLUE_LED);
                 #if SYS_FEATURE_BLE_STACK
                     BluetoothSniffer(); // Start BLE advertising discovery    
                     #if !ASYNC_SD_HANDLER && SYS_FEATURE_SD_STORAGE
                         processAllLogsSequential();
                     #endif
+                    showSuccess(Pins::BLUE_LED);
                     showSuccess(Pins::BUILT_IN_LED);
                 #endif
 
@@ -167,9 +176,7 @@ void runFSM()
            Enables the Access Point and HTTP server for file exfiltration.
         */
         case WEB_SERVER:
-        {
-            DEBUG_PRINTLN(F(CLR_YELLOW "Current FSM state: WEB_SERVER" CLR_RESET));
-            
+        {            
             if(serverStatus && scanMode == "WS")
             {
                 showSuccess(Pins::BUILT_IN_LED);
@@ -179,8 +186,8 @@ void runFSM()
                 if(btnBPressed)
                 {
                     showError(Pins::BUILT_IN_LED);
-
-                    currentState = IDLE;    
+                    DEBUG_PRINTLN("Exiting WEB_SERVER...");
+                    currentState = IDLE;
                     break;
                 }
             } else {
@@ -199,28 +206,36 @@ void runFSM()
         */
         case WARDRIVE_MODE:
         {
+            showOn(Pins::BLUE_LED);
+            delay(300);
+            showOff(Pins::BLUE_LED);
+
             // Exit condition
-            if(btnBPressed) 
+            if(digitalRead(Pins::BTN_B) == LOW) 
             {
                 DEBUG_PRINTLN(F(CLR_YELLOW "Exiting WARDRIVE_MODE..." CLR_RESET));
-
+                
+                WiFi.scanDelete(); 
+                
                 currentState = IDLE;
+                showOff(Pins::BUILT_IN_LED);
                 break;
             }
 
-            bool openFound = startWardrive();
-            #if !ASYNC_SD_HANDLER && SYS_FEATURE_SD_STORAGE
-                processAllLogsSequential();
+            #if SYS_FEATURE_WARDRIVE_SCAN
+                bool openFound = startWardrive();
+                #if !ASYNC_SD_HANDLER && SYS_FEATURE_SD_STORAGE
+                    processAllLogsSequential();
+                #endif
+
+                if(openFound)
+                {
+                    // Visual feedback for open networks found during wardrive
+                    DEBUG_PRINTLN(F(CLR_GREEN "Open Network Found!" CLR_RESET));
+                    showSuccess(Pins::BUILT_IN_LED); 
+                }
             #endif
-            
-            if(openFound)
-            {
-                // Visual feedback for open networks found during wardrive
-                DEBUG_PRINTLN(F(CLR_GREEN "Open Network Found!" CLR_RESET));
-                showSuccess(Pins::BUILT_IN_LED); 
-            }
-            
-            break;
+            break;   
         }
     }
 

@@ -3,5 +3,6 @@
 
 void setupWardrive();
 bool startWardrive();
+bool isNewNetwork(const char* bssid);
 
 #endif // !WARDRIVE_H
