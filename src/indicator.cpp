@@ -73,3 +73,38 @@ void showOff(int ledPinout)
 {
     digitalWrite(ledPinout, LOW); 
 }
+
+unsigned long lastIdleUpdate = 0;
+int idleStep = 0;
+bool isIdleActive = true;
+
+void idleState(int ledPinout1, int ledPinout2)
+{
+    unsigned long currentMillis = millis();
+    if(currentMillis - lastIdleUpdate >= 200)
+    {
+        if (!isIdleActive) return;
+        lastIdleUpdate = currentMillis;
+        idleStep++;
+        switch(idleStep) {
+            case 1: 
+                digitalWrite(ledPinout1, HIGH); 
+                digitalWrite(ledPinout2, LOW); 
+                break;
+            case 2: 
+                digitalWrite(ledPinout1, LOW); 
+                digitalWrite(ledPinout2, HIGH); 
+                break;
+            case 3: 
+                digitalWrite(ledPinout1, HIGH); 
+                digitalWrite(ledPinout2, LOW); 
+                break;
+            default: 
+                digitalWrite(ledPinout1, LOW); 
+                digitalWrite(ledPinout2, LOW);
+                idleStep = 0;
+                isIdleActive = false;
+                break;
+        }
+    }
+}

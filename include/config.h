@@ -14,7 +14,7 @@
 #define SYS_CFG_DEBUG_MODE        1
 #define ASYNC_SD_HANDLER          0
 #define SYS_CFG_USE_ANSI_COLORS   0
-#define SYS_FEATURE_SERVER        0
+#define SYS_FEATURE_SERVER        1
 
 /* * =================================================================
  * DEBUGGING MACROS
@@ -62,13 +62,13 @@
 namespace Pins 
 {
   // Buttons
-  static constexpr uint8_t BTN_A         = 14;
+  static constexpr uint8_t BTN_A         = 16;
   static constexpr uint8_t BTN_B         = 0;
-  static constexpr uint8_t BTN_C         = 16;
+  static constexpr uint8_t BTN_C         = 14;
   // Leds
   static constexpr uint8_t BUILT_IN_LED  = 2;
-  static constexpr uint8_t BLUE_LED      = 25;
-  static constexpr uint8_t GREEN_LED     = 26;
+  static constexpr uint8_t LED_1         = 18;
+  static constexpr uint8_t LED_2         = 17;
   // SD module
   static constexpr uint8_t SD_CS         = 5;
   static constexpr uint8_t MISO          = 19;

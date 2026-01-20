@@ -46,11 +46,13 @@ void setupFSM()
         setupWardrive();
     #endif    
     #if SYS_FEATURE_SERVER
-        serverStatus = startServer(); // Initialize the data access portal
+        //serverStatus = startServer(); // Initialize the data access portal
+        serverStatus = false;
     #endif
 
     // Core services and UI feedback initialization
-    setupIndicator(Pins::BLUE_LED);
+    setupIndicator(Pins::LED_1);
+    setupIndicator(Pins::LED_2);
 
     // Hardware Input configuration with internal pull-up resistors
     pinMode(Pins::BTN_A, INPUT_PULLUP);
@@ -79,13 +81,14 @@ void runFSM()
         */
         case IDLE:
         {
-            if(digitalRead(Pins::BTN_A) == LOW)
+            idleState(Pins::LED_1, Pins::LED_2);
+            if(btnAPressed) 
             {
                 // Double-click detection logic for mode switching
                 unsigned long gap = millis() + 400; // 400ms detection window
-                bool doubleClicked = false;
+                bool doubleClicked = false; 
 
-                while(digitalRead(Pins::BTN_A) == LOW); // Wait for release of first click
+                while(digitalRead(Pins::BTN_A) == LOW); 
 
                 while(millis() < gap)
                 {
@@ -138,31 +141,30 @@ void runFSM()
             
             if(scanMode == "WF")
             {   
-                showOn(Pins::BLUE_LED);
+                showOn(Pins::LED_1);
                 delay(300);
-                showOff(Pins::BLUE_LED);
+                showOff(Pins::LED_1);
                 #if SYS_FEATURE_WIFI_SCAN
                     wifiSniffer(); // Start 802.11 packet capture
                     #if !ASYNC_SD_HANDLER && SYS_FEATURE_SD_STORAGE
                         processAllLogsSequential();
                     #endif    
-                    showSuccess(Pins::GREEN_LED);
+                    showSuccess(Pins::LED_2);
                 #endif
 
                 currentState = IDLE;
                 break;
 
             } else if(scanMode == "BT") {
-                showOn(Pins::BLUE_LED);
+                showOn(Pins::LED_1);
                 delay(300);
-                showOff(Pins::BLUE_LED);
+                showOff(Pins::LED_1);
                 #if SYS_FEATURE_BLE_STACK
                     BluetoothSniffer(); // Start BLE advertising discovery    
                     #if !ASYNC_SD_HANDLER && SYS_FEATURE_SD_STORAGE
                         processAllLogsSequential();
                     #endif
-                    showSuccess(Pins::BLUE_LED);
-                    showSuccess(Pins::BUILT_IN_LED);
+                    showSuccess(Pins::LED_2);
                 #endif
 
                 currentState = IDLE;
@@ -177,27 +179,39 @@ void runFSM()
         */
         case WEB_SERVER:
         {            
-            if(serverStatus && scanMode == "WS")
-            {
-                showSuccess(Pins::BUILT_IN_LED);
-                serverRun(); // Maintain server runtime configurations and connections
+            #if SYS_FEATURE_SERVER
+                if (!serverStatus) {
+                    DEBUG_PRINTLN(F("Initializing Server on demand..."));
+                    serverStatus = startServer(); 
+                    
+                    if (!serverStatus) {
+                        DEBUG_PRINTLN(F(CLR_RED "Failed to connect to Home WiFi!" CLR_RESET));
+                        showError(Pins::LED_1);
+                        currentState = IDLE;
+                        break;
+                    }
+                }
+
+                showSuccess(Pins::LED_2);
+                serverRun(); 
                 
-                // Exit condition for Server Mode
+                // Exit condition
                 if(btnBPressed)
                 {
                     showError(Pins::BUILT_IN_LED);
-                    DEBUG_PRINTLN("Exiting WEB_SERVER...");
+                    DEBUG_PRINTLN("Exiting and shutting down WiFi...");
+                    
+                    WiFi.disconnect(true); 
+                    WiFi.mode(WIFI_OFF);
+
+                    serverStatus = false;
                     currentState = IDLE;
                     break;
                 }
-            } else {
-                DEBUG_PRINTLN(F(CLR_RED "Server Error or Invalid Mode!" CLR_RESET));
-                showError(Pins::BUILT_IN_LED);
-
+            #else
+                DEBUG_PRINTLN(F("Server Feature Disabled in Config!"));
                 currentState = IDLE;
-                break;
-            }
-
+            #endif
             break;
         }
 
@@ -206,11 +220,7 @@ void runFSM()
         */
         case WARDRIVE_MODE:
         {
-            showOn(Pins::BLUE_LED);
-            delay(300);
-            showOff(Pins::BLUE_LED);
-
-            // Exit condition
+            // Exit condition - Check physical state for immediate response
             if(digitalRead(Pins::BTN_B) == LOW) 
             {
                 DEBUG_PRINTLN(F(CLR_YELLOW "Exiting WARDRIVE_MODE..." CLR_RESET));
@@ -218,12 +228,13 @@ void runFSM()
                 WiFi.scanDelete(); 
                 
                 currentState = IDLE;
-                showOff(Pins::BUILT_IN_LED);
+                showOff(Pins::LED_1);
                 break;
             }
 
             #if SYS_FEATURE_WARDRIVE_SCAN
                 bool openFound = startWardrive();
+                showOn(Pins::LED_1);
                 #if !ASYNC_SD_HANDLER && SYS_FEATURE_SD_STORAGE
                     processAllLogsSequential();
                 #endif
@@ -232,7 +243,7 @@ void runFSM()
                 {
                     // Visual feedback for open networks found during wardrive
                     DEBUG_PRINTLN(F(CLR_GREEN "Open Network Found!" CLR_RESET));
-                    showSuccess(Pins::BUILT_IN_LED); 
+                    showSuccess(Pins::LED_2); 
                 }
             #endif
             break;   

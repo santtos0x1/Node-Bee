@@ -13,34 +13,40 @@
 WiFiServer server(WEB_SERVER_PORT);
 
 // Network credentials
-const char* apSsid= "Suspicius Network";
-const char* apPass = "imacreep1212";
+const char* ssid= "Main C";
+const char* pass = "";
 
-/**
-   Scans for available networks and attempts to establish an HTTP server.
- */
 bool startServer() 
 {
-    DEBUG_PRINTLN(F(CLR_YELLOW "Starting WiFi AP" CLR_RESET));
-    bool apRaiseUp = WiFi.softAP(apSsid, apPass);
+    WiFi.persistent(false);
+    // Resets WiFi radio state to Station Mode
+    WiFi.disconnect(true);
+    WiFi.mode(WIFI_STA);
+    delay(Time::LOW_DELAY);
 
-    while(!apRaiseUp)
+    DEBUG_PRINT(F(CLR_YELLOW "Connecting to WiFi" CLR_RESET));
+    WiFi.begin(ssid, pass);
+
+    int8_t counter = 0;
+    while(WiFi.status() != WL_CONNECTED)
     {
         DEBUG_PRINT(F("."));
         delay(Time::LOW_DELAY);
+        counter++;
+        if(counter == 50) break;
     };
     
-    if(apRaiseUp)
+    if(WiFi.status() == WL_CONNECTED)
     {
-        DEBUG_PRINTLN(F(CLR_GREEN "\nAP Connection created successfully!" CLR_RESET));
+        DEBUG_PRINTLN(F(CLR_GREEN "\nSupa!" CLR_RESET));
         DEBUG_PRINTLN(F(CLR_YELLOW "Initializing listener..." CLR_RESET));
         server.begin();
         DEBUG_PRINTLN(F(CLR_GREEN "Server active!" CLR_RESET));
         DEBUG_PRINT(F(CLR_YELLOW "Local IP Address: " CLR_RESET));
-        DEBUG_PRINTLN(WiFi.softAPIP());
+        DEBUG_PRINTLN(WiFi.localIP());
         return true;
     } else {
-        DEBUG_PRINTLN(F(CLR_RED "\nFailed to create the AP." CLR_RESET));
+        DEBUG_PRINTLN(F(CLR_RED "\nFailed to connect to the network" CLR_RESET));
         DEBUG_PRINTLN(F(CLR_RED "Server startup failed: No valid connection." CLR_RESET));
         return false;
     }
@@ -170,6 +176,6 @@ void serverRun()
         delay(Time::LOW_DELAY);
         client.stop();
         DEBUG_PRINTLN(F(CLR_YELLOW "Client session terminated." CLR_RESET));
-        WiFi.softAPdisconnect(true);
+        WiFi.disconnect();
     }
 }

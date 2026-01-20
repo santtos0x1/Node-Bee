@@ -41,9 +41,7 @@ void setupWardrive()
  * Returns true if an Open Network (No Auth) is detected during the scan.
  */
 bool startWardrive()
-{
-    bool openNetworkfound = false;
-
+{   
     // Check the current status of the scan
     int16_t scanStatus = WiFi.scanComplete();
     
@@ -64,6 +62,7 @@ bool startWardrive()
     {
         for(int n = 0; n < scanStatus; n++)
         {   
+            bool openNetwork = false;
             if (digitalRead(Pins::BTN_B) == LOW) {
                 WiFi.scanDelete(); // Free memory before leaving
                 return false; 
@@ -71,19 +70,27 @@ bool startWardrive()
 
             WardriveData data;
 
-            // Copy BSSID and ensure null-termination   
+            // Copy BSSID
             strncpy(data.bssid, WiFi.BSSIDstr(n).c_str(), sizeof(data.bssid) - 1);
-            data.bssid[sizeof(data.bssid) - 1] = '\0';
+            strncpy(data.ssid, WiFi.SSID(n).c_str(), sizeof(data.ssid) - 1);
 
             // Filter out already known networks
             if (!isNewNetwork(data.bssid)) {
                 continue; 
             }
+
+            if((WiFi.encryptionType(n) == WIFI_AUTH_OPEN) && isNewNetwork(data.bssid))
+            {
+                openNetwork = true;
+            }
             
             // Add new BSSID to the circular buffer
-            strncpy(knownBSSIDs[nextIndex], data.bssid, 18);
-            DEBUG_PRINTF(" --> BSSID: %s\n", data.bssid);
+            strncpy(knownBSSIDs[nextIndex], data.bssid, sizeof(data.bssid));
+            DEBUG_PRINTF("SSID: %s\n", data.ssid);
+            DEBUG_PRINTF("BSSID: %s\n", data.bssid);
             nextIndex = (nextIndex + 1) % MAX_KNOWN_NETWORKS;
+
+            return openNetwork;
 
             #if (ASYNC_SD_HANDLER && SYS_FEATURE_SD_STORAGE) || (!ASYNC_SD_HANDLER && SYS_FEATURE_SD_STORAGE)
                 // Push data to the queue with a 10ms timeout
@@ -96,6 +103,6 @@ bool startWardrive()
         /* Crucial: Clears the scan results from RAM. */
         WiFi.scanDelete();
     }
-    
-    return openNetworkfound;
+
+    return false;
 }
