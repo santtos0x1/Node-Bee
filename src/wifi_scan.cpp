@@ -1,6 +1,9 @@
+// Local libs
 #include "wifi_scan.h"
 #include "config.h"
 #include "utils.h"
+
+// Libs
 #include <esp_wifi.h>
 #include <Arduino.h>
 #include <WiFi.h>
@@ -44,11 +47,12 @@ void wifiSniffer() {
         data.channel = WiFi.channel(i);
 
         // --- EXIBIÇÃO DOS RESULTADOS NO SERIAL ---
-        DEBUG_PRINTF(F(CLR_CYN "\n[ NETWORK %02d ]\nSSID: %s\n" CLR_RESET), i + 1, data.ssid);
-        DEBUG_PRINTF(F("BSSID: %s\n"), data.bssid);
-        DEBUG_PRINTF(F("RSSI: %d dBm (%s)\n"), data.rssi, data.dbmQuality);
-        DEBUG_PRINTF(F("Channel: %d\n"), data.channel);
-        DEBUG_PRINTF(F("Encryption type: %s\n"), (data.encryptionType == WIFI_AUTH_OPEN) ? "OPEN" : "SECURED");
+        DEBUG_PRINTF(F(CLR_CYN "\n[ NETWORK %02d ]" CLR_RESET), i + 1);
+        DEBUG_PRINTF(F("\n  SSID            : %s"), data.ssid);
+        DEBUG_PRINTF(F("\n  BSSID           : %s"), data.bssid);
+        DEBUG_PRINTF(F("\n  RSSI            : %d dBm (%s)"), data.rssi, data.dbmQuality);
+        DEBUG_PRINTF(F("\n  Channel         : %d"), data.channel);
+        DEBUG_PRINTF(F("\n  Encryption type : %s\n"), (data.encryptionType == WIFI_AUTH_OPEN) ? "OPEN" : "SECURED");
 
         /* Active Probing: Only attempts connection on Unsecured (Open) networks */
         if (data.encryptionType == WIFI_AUTH_OPEN && data.rssi >= -75) {
@@ -72,13 +76,16 @@ void wifiSniffer() {
                 tcpip_adapter_dhcpc_get_status(TCPIP_ADAPTER_IF_STA, &DHCPStatus);
                 strncpy(data.dhcp, (DHCPStatus == TCPIP_ADAPTER_DHCP_STARTED) ? "Active" : "Static", sizeof(data.dhcp));
 
-                DEBUG_PRINTF(F(CLR_GREEN "[+] Connected! IP: %s\n" CLR_RESET), data.localIP);
-                DEBUG_PRINTF(F("Hostname: %s | DHCP: %s\n"), data.hostname, data.dhcp);
-                DEBUG_PRINTF(F("Mask: %s | DNS: %s\n"), data.subNetMask, data.dnsIP);
+                DEBUG_PRINTF(F(CLR_GREEN "          [+] Connected!\n" CLR_RESET));
+                DEBUG_PRINTF(F("          IP Address : %s\n"), data.localIP);
+                DEBUG_PRINTF(F("          Hostname   : %s\n"), data.hostname);
+                DEBUG_PRINTF(F("          DHCP       : %s\n"), data.dhcp);
+                DEBUG_PRINTF(F("          Mask       : %s\n"), data.subNetMask);
+                DEBUG_PRINTF(F("          DNS        : %s\n"), data.dnsIP);
 
                 WiFi.disconnect();
             } else {
-                DEBUG_PRINTLN(F(CLR_RED "[-] Connection failed (Timeout)." CLR_RESET));
+                DEBUG_PRINTLN(F(CLR_RED "          [-] Connection failed (Timeout)." CLR_RESET));
             }
         }
 
