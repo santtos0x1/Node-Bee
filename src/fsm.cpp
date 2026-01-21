@@ -21,7 +21,6 @@ int menuIndex = 0;
 bool btnALastState = HIGH;
 bool btnBLastState = HIGH;
 
-
 // Operational flag to define the current scanning technology
 String scanMode;
 

@@ -199,7 +199,6 @@ void processBluetoothLog(BTData data)
 {
     String BTFileName = BTFolderSDPath + "/bt_" + String(session_id) + ".csv";
     
-    // Corrigido: Removido F() do printf para evitar erro de compilação e corrigido parênteses
     DEBUG_PRINTF(CLR_YELLOW "Target file: '%s'.\n" CLR_RESET, BTFileName.c_str());
     
     bool fileExists = SD.exists(BTFileName);
