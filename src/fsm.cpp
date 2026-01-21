@@ -182,6 +182,7 @@ void runFSM()
                     showSuccess(Pins::LED_3);
                 #endif
 
+                menuIndex = 0;
                 currentState = IDLE;
                 break;
             }
@@ -203,7 +204,7 @@ void runFSM()
                         DEBUG_PRINTLN(F(CLR_RED "Failed to connect to Home WiFi!" CLR_RESET));
                         menuIndex = 0;
                         currentState = IDLE;
-                        
+
                         showError(Pins::LED_2);
                         break;
                     }
