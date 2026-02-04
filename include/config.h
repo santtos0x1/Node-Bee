@@ -7,12 +7,12 @@
  * GLOBAL SETTINGS (MACROS)
  * =================================================================
  */
-#define SYS_FEATURE_SD_STORAGE    0     
+#define SYS_FEATURE_SD_STORAGE    1     
 #define SYS_FEATURE_WIFI_SCAN     1
 #define SYS_FEATURE_WARDRIVE_SCAN 1
 #define SYS_FEATURE_BLE_STACK     1
 #define SYS_CFG_DEBUG_MODE        1
-#define ASYNC_SD_HANDLER          0
+#define ASYNC_SD_HANDLER          1
 #define SYS_CFG_USE_ANSI_COLORS   0
 #define SYS_FEATURE_SERVER        1
 
@@ -62,18 +62,18 @@
 namespace Pins 
 {
   // Buttons
-  static constexpr uint8_t BTN_A         = 0;
+  static constexpr uint8_t BTN_A         = 14;
   static constexpr uint8_t BTN_B         = 16;
   // Leds
   static constexpr uint8_t BUILT_IN_LED  = 2;
   static constexpr uint8_t LED_1         = 18; 
   static constexpr uint8_t LED_2         = 17;
-  static constexpr uint8_t LED_3         = 19;
+  static constexpr uint8_t LED_3         = 22;
   // SD module
   static constexpr uint8_t SD_CS         = 5;
   static constexpr uint8_t MISO          = 19;
   static constexpr uint8_t MOSI          = 23;
-  static constexpr uint8_t SCK           = 18;
+  static constexpr uint8_t SCK           = 27;
 }
 
 /* * =================================================================

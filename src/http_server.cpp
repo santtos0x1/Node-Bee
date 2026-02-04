@@ -155,8 +155,9 @@ bool serverRun()
     if(client)
     {
         long timeout = millis();
-        while(!client.available() && millis() - timeout < 500) {
-            delay(Time::HIGH_DELAY);
+        while(!client.available() && millis() - timeout < 500)
+        {
+            delay(Time::HIGH_DELAY);void allLeds(int state);
         }
 
         if(!client.available()) {
